@@ -3,18 +3,21 @@
     "id": 1,
     "nama": "Nasi Goreng",
     "harga": 15000,
-    "category": { "nama": "Makanan" }
+    "category": { "nama": "Makanan" },
+    "gambar": "nasi-goreng-telor.jpg"
   },
   {
     "id": 2,
     "nama": "Es Teh",
     "harga": 5000,
-    "category": { "nama": "Minuman" }
+    "category": { "nama": "Minuman" },
+    "gambar": "es-teh.jpg"
   },
   {
     "id": 3,
     "nama": "Kentang Goreng",
     "harga": 12000,
-    "category": { "nama": "Cemilan" }
+    "category": { "nama": "Cemilan" },
+    "gambar": "kentang-goreng.jpg"
   }
 ]
