@@ -26,7 +26,8 @@
     "eject": "react-scripts eject",
     "lint": "eslint . --ext .js,.jsx || true",
     "format": "prettier --write .",
-    "seed": "node scripts/seed.js"
+    "seed": "node scripts/seed.js",
+    "serve:api": "json-server --watch data/db.json --port 3004"
   },
   "eslintConfig": {
     "extends": "react-app"
