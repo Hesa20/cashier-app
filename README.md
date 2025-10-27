@@ -43,7 +43,7 @@ Script npm yang direkomendasikan (tambahkan pada package.json)
 ```json
 {
   "scripts": {
-    "dev": "vite",                  // atau command dev yang sesuai
+    "dev": "vite",
     "build": "vite build",
     "start": "vite preview --port 3000",
     "lint": "eslint . --fix",
