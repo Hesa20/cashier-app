@@ -1,0 +1,20 @@
+[
+  {
+    "id": 1,
+    "nama": "Nasi Goreng",
+    "harga": 15000,
+    "category": { "nama": "Makanan" }
+  },
+  {
+    "id": 2,
+    "nama": "Es Teh",
+    "harga": 5000,
+    "category": { "nama": "Minuman" }
+  },
+  {
+    "id": 3,
+    "nama": "Kentang Goreng",
+    "harga": 12000,
+    "category": { "nama": "Cemilan" }
+  }
+]
