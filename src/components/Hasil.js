@@ -1,11 +1,11 @@
-import React, { Component } from "react";
-import { Card, Col, ListGroup, Row } from "react-bootstrap";
-import { numberWithCommas } from "../utils/utils";
-import ModalKeranjang from "./ModalKeranjang";
-import TotalBayar from "./TotalBayar";
-import { API_URL } from "../utils/constants";
-import axios from "axios";
-import swal from "sweetalert";
+import React, { Component } from 'react';
+import { Card, Col, ListGroup, Row } from 'react-bootstrap';
+import { numberWithCommas } from '../utils/utils';
+import ModalKeranjang from './ModalKeranjang';
+import TotalBayar from './TotalBayar';
+import { API_URL } from '../utils/constants';
+import axios from 'axios';
+import swal from 'sweetalert';
 
 export default class Hasil extends Component {
   constructor(props) {
@@ -15,12 +15,12 @@ export default class Hasil extends Component {
       showModal: false,
       keranjangDetail: false,
       jumlah: 0,
-      keterangan: "",
+      keterangan: '',
       totalHarga: 0,
     };
   }
 
-  handleShow = (menuKeranjang) => {
+  handleShow = menuKeranjang => {
     this.setState({
       showModal: true,
       keranjangDetail: menuKeranjang,
@@ -39,8 +39,7 @@ export default class Hasil extends Component {
   tambah = () => {
     this.setState({
       jumlah: this.state.jumlah + 1,
-      totalHarga:
-        this.state.keranjangDetail.product.harga * (this.state.jumlah + 1),
+      totalHarga: this.state.keranjangDetail.product.harga * (this.state.jumlah + 1),
     });
   };
 
@@ -48,19 +47,18 @@ export default class Hasil extends Component {
     if (this.state.jumlah !== 1) {
       this.setState({
         jumlah: this.state.jumlah - 1,
-        totalHarga:
-          this.state.keranjangDetail.product.harga * (this.state.jumlah - 1),
+        totalHarga: this.state.keranjangDetail.product.harga * (this.state.jumlah - 1),
       });
     }
   };
 
-  changeHandler = (event) => {
+  changeHandler = event => {
     this.setState({
       keterangan: event.target.value,
     });
   };
 
-  handleSubmit = (event) => {
+  handleSubmit = event => {
     event.preventDefault();
 
     this.handleClose();
@@ -73,38 +71,37 @@ export default class Hasil extends Component {
     };
 
     axios
-      .put(API_URL + "keranjangs/" + this.state.keranjangDetail.id, data)
-      .then((res) => {
+      .put(API_URL + 'keranjangs/' + this.state.keranjangDetail.id, data)
+      .then(res => {
         swal({
-          title: "Update Pesanan!",
-          text: "Sukses Update Pesanan " + data.product.nama,
-          icon: "success",
+          title: 'Update Pesanan!',
+          text: 'Sukses Update Pesanan ' + data.product.nama,
+          icon: 'success',
           button: false,
           timer: 1500,
         });
       })
-      .catch((error) => {
-        console.error("Error yaa ", error);
+      .catch(error => {
+        console.error('Error yaa ', error);
       });
   };
 
-  hapusPesanan = (id) => {
+  hapusPesanan = id => {
     this.handleClose();
 
     axios
-      .delete(API_URL + "keranjangs/" + id)
-      .then((res) => {
+      .delete(API_URL + 'keranjangs/' + id)
+      .then(res => {
         swal({
-          title: "Hapus Pesanan!",
-          text:
-            "Sukses Hapus Pesanan " + this.state.keranjangDetail.product.nama,
-          icon: "error",
+          title: 'Hapus Pesanan!',
+          text: 'Sukses Hapus Pesanan ' + this.state.keranjangDetail.product.nama,
+          icon: 'error',
           button: false,
           timer: 1500,
         });
       })
-      .catch((error) => {
-        console.error("Error yaa ", error);
+      .catch(error => {
+        console.error('Error yaa ', error);
       });
   };
 
@@ -119,32 +116,29 @@ export default class Hasil extends Component {
         {keranjangs.length !== 0 && (
           <Card
             className="overflow-auto hasil lighter-clr"
-            style={{ height: "55vh", paddingTop: "7px" }}
+            style={{ height: '55vh', paddingTop: '7px' }}
           >
             <ListGroup variant="flush">
-              {keranjangs.map((menuKeranjang) => (
+              {keranjangs.map(menuKeranjang => (
                 <ListGroup.Item
                   key={menuKeranjang.id}
                   onClick={() => this.handleShow(menuKeranjang)}
                   className="lighter-clr"
                 >
-                  <Row
-                    className="lighter-clr"
-                    style={{ cursor: "pointer", marginTop: "7px" }}
-                  >
+                  <Row className="lighter-clr" style={{ cursor: 'pointer', marginTop: '7px' }}>
                     <Col xs={2}>
                       <div
                         style={{
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          width: "35px",
-                          height: "35px",
-                          backgroundColor: "#756f52",
-                          color: "white",
-                          borderRadius: "999px",
-                          fontWeight: "bold",
-                          fontSize: "0.9rem",
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          width: '35px',
+                          height: '35px',
+                          backgroundColor: '#756f52',
+                          color: 'white',
+                          borderRadius: '999px',
+                          fontWeight: 'bold',
+                          fontSize: '0.9rem',
                         }}
                       >
                         <center>{menuKeranjang.jumlah}</center>

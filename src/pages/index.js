@@ -1,4 +1,4 @@
-import Home from './Home'
-import Sukses from './Sukses'
+import Home from './Home';
+import Sukses from './Sukses';
 
-export { Home, Sukses }
+export { Home, Sukses };

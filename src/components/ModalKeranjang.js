@@ -1,8 +1,8 @@
-import { faMinus, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React from "react";
-import { Modal, Button, Form } from "react-bootstrap";
-import { numberWithCommas } from "../utils/utils";
+import { faMinus, faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import React from 'react';
+import { Modal, Button, Form } from 'react-bootstrap';
+import { numberWithCommas } from '../utils/utils';
 
 const ModalKeranjang = ({
   showModal,
@@ -22,10 +22,8 @@ const ModalKeranjang = ({
       <Modal show={showModal} onHide={handleClose}>
         <Modal.Header closeButton>
           <Modal.Title>
-            {keranjangDetail.product.nama}{" "}
-            <strong>
-              (Rp. {numberWithCommas(keranjangDetail.product.harga)})
-            </strong>
+            {keranjangDetail.product.nama}{' '}
+            <strong>(Rp. {numberWithCommas(keranjangDetail.product.harga)})</strong>
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
@@ -44,9 +42,9 @@ const ModalKeranjang = ({
                 size="sm"
                 className="mr-2"
                 style={{
-                  backgroundColor: "#47422e",
-                  marginRight: "10px",
-                  border: "none",
+                  backgroundColor: '#47422e',
+                  marginRight: '10px',
+                  border: 'none',
                 }}
                 onClick={() => kurang()}
               >
@@ -59,9 +57,9 @@ const ModalKeranjang = ({
                 variant="primary"
                 size="sm"
                 style={{
-                  backgroundColor: "#47422e",
-                  marginLeft: "10px",
-                  border: "none",
+                  backgroundColor: '#47422e',
+                  marginLeft: '10px',
+                  border: 'none',
                 }}
                 onClick={() => tambah()}
               >
@@ -70,25 +68,23 @@ const ModalKeranjang = ({
             </Form.Group>
 
             <Form.Group controlId="exampleForm.ControlTextarea1">
-              <Form.Label style={{ marginTop: "20px" }}>
-                Keterangan :
-              </Form.Label>
+              <Form.Label style={{ marginTop: '20px' }}>Keterangan :</Form.Label>
               <Form.Control
                 as="textarea"
                 rows="3"
                 name="keterangan"
                 placeholder="Contoh : Pedes, Nasi Setengah"
                 value={keterangan}
-                onChange={(event) => changeHandler(event)}
+                onChange={event => changeHandler(event)}
               />
             </Form.Group>
             <Button
               variant="primary"
               type="submit"
               style={{
-                backgroundColor: "#47422e",
-                border: "none",
-                marginTop: "15px",
+                backgroundColor: '#47422e',
+                border: 'none',
+                marginTop: '15px',
               }}
             >
               Simpan
@@ -96,10 +92,7 @@ const ModalKeranjang = ({
           </Form>
         </Modal.Body>
         <Modal.Footer>
-          <Button
-            variant="danger"
-            onClick={() => hapusPesanan(keranjangDetail.id)}
-          >
+          <Button variant="danger" onClick={() => hapusPesanan(keranjangDetail.id)}>
             <FontAwesomeIcon icon={faTrash} /> Hapus Pesanan
           </Button>
         </Modal.Footer>
