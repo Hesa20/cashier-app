@@ -136,6 +136,11 @@ export default class Home extends Component {
               <h4>
                 <strong>Daftar Produk</strong>
               </h4>
+              {process.env.NODE_ENV !== 'production' && (
+                <div style={{ marginBottom: '8px' }}>
+                  <small className="text-muted">Debug: categories loaded, products: {menus ? menus.length : 0}</small>
+                </div>
+              )}
               <hr />
               <Row className="overflow-auto menu" style={{ height: '690px' }}>
                 {menus &&
