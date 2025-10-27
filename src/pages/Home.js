@@ -24,7 +24,7 @@ export default class Home extends Component {
         this.setState({ menus });
       })
       .catch((error) => {
-        console.log("Error yaa ", error);
+        console.error("Error yaa ", error);
       });
 
     axios
@@ -34,7 +34,7 @@ export default class Home extends Component {
         this.setState({ keranjangs });
       })
       .catch((error) => {
-        console.log("Error yaa ", error);
+        console.error("Error yaa ", error);
       });
   }
 
@@ -47,7 +47,7 @@ export default class Home extends Component {
           this.setState({ keranjangs });
         })
         .catch((error) => {
-          console.log("Error yaa ", error);
+          console.error("Error yaa ", error);
         });
     }
   }
@@ -65,7 +65,7 @@ export default class Home extends Component {
         this.setState({ menus });
       })
       .catch((error) => {
-        console.log("Error yaa ", error);
+        console.error("Error yaa ", error);
       });
   };
 
@@ -92,7 +92,7 @@ export default class Home extends Component {
               });
             })
             .catch((error) => {
-              console.log("Error yaa ", error);
+              console.error("Error yaa ", error);
             });
         } else {
           const keranjang = {
@@ -113,12 +113,12 @@ export default class Home extends Component {
               });
             })
             .catch((error) => {
-              console.log("Error yaa ", error);
+              console.error("Error yaa ", error);
             });
         }
       })
       .catch((error) => {
-        console.log("Error yaa ", error);
+        console.error("Error yaa ", error);
       });
   };
 

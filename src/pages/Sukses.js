@@ -13,12 +13,12 @@ export default class Sukses extends Component {
         keranjangs.map(function (item) {
           return axios
             .delete(API_URL + "keranjangs/" + item.id)
-            .then((res) => console.log(res))
-            .catch((error) => console.log(error));
+            .then(() => {})
+            .catch((error) => console.error(error));
         });
       })
       .catch((error) => {
-        console.log("Error yaa ", error);
+        console.error("Error yaa ", error);
       });
   }
 

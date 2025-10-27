@@ -84,7 +84,7 @@ export default class Hasil extends Component {
         });
       })
       .catch((error) => {
-        console.log("Error yaa ", error);
+        console.error("Error yaa ", error);
       });
   };
 
@@ -104,7 +104,7 @@ export default class Hasil extends Component {
         });
       })
       .catch((error) => {
-        console.log("Error yaa ", error);
+        console.error("Error yaa ", error);
       });
   };
 
