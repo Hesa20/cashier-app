@@ -25,7 +25,11 @@ export default class Sukses extends Component {
   render() {
     return (
       <div className="mt-5 text-center">
-        <Image src="assets/images/success.png" className="success-img" width="500px" />
+        <Image
+          src={process.env.PUBLIC_URL + '/assets/images/success.png'}
+          className="success-img"
+          width="500px"
+        />
         <h2 style={{ marginTop: '20px', fontWeight: 'bold' }}>Pesanan Berhasil</h2>
         <h5>Terimakasih Sudah Memesan!</h5>
         <Button

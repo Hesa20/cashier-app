@@ -14,7 +14,7 @@ const Menus = ({ menu, masukKeranjang }) => {
           variant="top"
           height={'180px'}
           style={{ objectFit: 'cover', borderRadius: '15px 15px 0 0' }}
-          src={'assets/images/' + menu.category.nama.toLowerCase() + '/' + menu.gambar}
+          src={process.env.PUBLIC_URL + '/assets/images/' + menu.category.nama.toLowerCase() + '/' + menu.gambar}
         />
         <Card.Body>
           <Card.Title>
