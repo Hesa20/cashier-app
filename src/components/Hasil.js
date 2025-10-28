@@ -3,8 +3,7 @@ import { Card, Col, ListGroup, Row } from 'react-bootstrap';
 import { numberWithCommas } from '../utils/utils';
 import ModalKeranjang from './ModalKeranjang';
 import TotalBayar from './TotalBayar';
-import { API_URL } from '../utils/constants';
-import axios from 'axios';
+import api from '../lib/api';
 import swal from 'sweetalert';
 
 export default class Hasil extends Component {
@@ -70,8 +69,8 @@ export default class Hasil extends Component {
       keterangan: this.state.keterangan,
     };
 
-    axios
-      .put(API_URL + 'keranjangs/' + this.state.keranjangDetail.id, data)
+    api
+      .put(`keranjangs/${this.state.keranjangDetail.id}`, data)
       .then(res => {
         swal({
           title: 'Update Pesanan!',
@@ -89,8 +88,8 @@ export default class Hasil extends Component {
   hapusPesanan = id => {
     this.handleClose();
 
-    axios
-      .delete(API_URL + 'keranjangs/' + id)
+    api
+      .delete(`keranjangs/${id}`)
       .then(res => {
         swal({
           title: 'Hapus Pesanan!',

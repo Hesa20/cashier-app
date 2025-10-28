@@ -1,79 +1,83 @@
+"use client";
+
 import { faShoppingCart } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import axios from 'axios';
-import React, { Component } from 'react';
+import api from '../lib/api';
+import React from 'react';
 import { Row, Col, Button } from 'react-bootstrap';
 import { numberWithCommas } from '../utils/utils';
-import { API_URL } from '../utils/constants';
+import { useRouter } from 'next/navigation';
 
-export default class TotalBayar extends Component {
-  submitTotalBayar = totalBayar => {
+export default function TotalBayar({ keranjangs }) {
+  const router = useRouter();
+
+  const submitTotalBayar = async (totalBayar) => {
     const pesanan = {
       total_bayar: totalBayar,
-      menus: this.props.keranjangs,
+      menus: keranjangs,
     };
 
-    axios.post(API_URL + 'pesanans', pesanan).then(res => {
-      this.props.history.push('/sukses');
-    });
+    try {
+      await api.post('pesanans', pesanan);
+      // use Next.js router to navigate client-side
+      router.push('/sukses');
+    } catch (err) {
+      console.error('Error submitting order', err);
+    }
   };
 
-  render() {
-    const totalBayar = this.props.keranjangs.reduce(function (result, item) {
-      return result + item.total_harga;
-    }, 0);
+  const totalBayar = (keranjangs || []).reduce((result, item) => result + item.total_harga, 0);
 
-    return (
-      <>
-        {/* Web */}
-        <div className="fixed-bottom d-none d-md-block">
-          <Row>
-            <Col md={{ span: 3, offset: 9 }} className="px-4 mb-3">
-              <h4>
-                Total Harga :{' '}
-                <strong className="float-right mr-2">Rp. {numberWithCommas(totalBayar)}</strong>
-              </h4>
-              <Button
-                variant="primary"
-                block
-                className="mb-2 mt-3 mr-2"
-                size="lg"
-                style={{
-                  backgroundColor: '#47422e',
-                  border: 'none',
-                  padding: '12px 22px',
-                  borderRadius: '8px',
-                }}
-                onClick={() => this.submitTotalBayar(totalBayar)}
-              >
-                <FontAwesomeIcon icon={faShoppingCart} /> <strong>BAYAR</strong>
-              </Button>
-            </Col>
-          </Row>
-        </div>
+  return (
+    <>
+      {/* Web */}
+      <div className="fixed-bottom d-none d-md-block">
+        <Row>
+          <Col md={{ span: 3, offset: 9 }} className="px-4 mb-3">
+            <h4>
+              Total Harga :{' '}
+              <strong className="float-right mr-2">Rp. {numberWithCommas(totalBayar)}</strong>
+            </h4>
+            <Button
+              variant="primary"
+              block
+              className="mb-2 mt-3 mr-2"
+              size="lg"
+              style={{
+                backgroundColor: '#47422e',
+                border: 'none',
+                padding: '12px 22px',
+                borderRadius: '8px',
+              }}
+              onClick={() => submitTotalBayar(totalBayar)}
+            >
+              <FontAwesomeIcon icon={faShoppingCart} /> <strong>BAYAR</strong>
+            </Button>
+          </Col>
+        </Row>
+      </div>
 
-        {/* Mobile  */}
-        <div className="d-sm-block d-md-none">
-          <Row>
-            <Col md={{ span: 3, offset: 9 }} className="px-4 mt-4">
-              <h4>
-                Total Harga :{' '}
-                <strong className="float-right mr-2">Rp. {numberWithCommas(totalBayar)}</strong>
-              </h4>
-              <Button
-                variant="primary"
-                block
-                className="mb-2 mt-4 mr-2 py-3 px-4"
-                style={{ backgroundColor: '#47422e', border: 'none' }}
-                size="lg"
-                onClick={() => this.submitTotalBayar(totalBayar)}
-              >
-                <FontAwesomeIcon icon={faShoppingCart} /> <strong>BAYAR</strong>
-              </Button>
-            </Col>
-          </Row>
-        </div>
-      </>
-    );
-  }
+      {/* Mobile  */}
+      <div className="d-sm-block d-md-none">
+        <Row>
+          <Col md={{ span: 3, offset: 9 }} className="px-4 mt-4">
+            <h4>
+              Total Harga :{' '}
+              <strong className="float-right mr-2">Rp. {numberWithCommas(totalBayar)}</strong>
+            </h4>
+            <Button
+              variant="primary"
+              block
+              className="mb-2 mt-4 mr-2 py-3 px-4"
+              style={{ backgroundColor: '#47422e', border: 'none' }}
+              size="lg"
+              onClick={() => submitTotalBayar(totalBayar)}
+            >
+              <FontAwesomeIcon icon={faShoppingCart} /> <strong>BAYAR</strong>
+            </Button>
+          </Col>
+        </Row>
+      </div>
+    </>
+  );
 }

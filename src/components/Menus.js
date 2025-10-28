@@ -14,11 +14,12 @@ const Menus = ({ menu, masukKeranjang }) => {
           variant="top"
           height={'180px'}
           style={{ objectFit: 'cover', borderRadius: '15px 15px 0 0' }}
-          src={process.env.PUBLIC_URL + '/assets/images/' + menu.category.nama.toLowerCase() + '/' + menu.gambar}
+          // Next.js serves files from the `public/` folder at the root path
+          src={'/assets/images/' + menu.category.nama.toLowerCase() + '/' + menu.gambar}
           onError={(e) => {
             // fallback to default image when file not found or request fails
             e.target.onerror = null;
-            e.target.src = process.env.PUBLIC_URL + '/assets/images/default.png';
+            e.target.src = '/assets/images/default.png';
           }}
         />
         <Card.Body>
