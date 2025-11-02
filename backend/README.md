@@ -7,8 +7,10 @@ REST API backend untuk aplikasi kasir menggunakan Hapi.js.
 - ✅ RESTful API architecture
 - ✅ MVC pattern (Model-View-Controller)
 - ✅ CORS enabled
+- ✅ Input validation with @hapi/joi
 - ✅ Error handling
 - ✅ Environment configuration
+- ✅ Structured logging
 - ✅ In-memory data storage (ready for database integration)
 
 ## 🚀 Quick Start
@@ -65,11 +67,21 @@ backend/
 │   │   ├── productRoutes.js
 │   │   ├── keranjangRoutes.js
 │   │   ├── pesananRoutes.js
+│   │   ├── healthRoutes.js
 │   │   └── index.js
-│   └── index.js           # Server initialization
+│   ├── config/            # Configuration files
+│   │   ├── env.js        # Environment variables
+│   │   ├── cors.js       # CORS settings
+│   │   ├── logger.js     # Logging configuration
+│   │   └── validation.js # Validation schemas
+│   ├── utils/            # Utility functions
+│   │   └── response.js   # Response helpers
+│   └── index.js          # Server initialization
 ├── package.json
 ├── .env
 ├── .env.example
+├── .gitignore
+├── README.md
 └── API_DOCUMENTATION.md   # Detailed API docs
 ```
 
@@ -239,31 +251,35 @@ const routes = [
 
 ## 📦 Dependencies
 
-- **@hapi/hapi** - Web framework
-- **dotenv** - Environment variables
-- **nodemon** (dev) - Auto-reload on file changes
+- **@hapi/hapi** (^21.3.2) - Web framework
+- **@hapi/joi** (^17.1.1) - Input validation
+- **dotenv** (^16.3.1) - Environment variables
+- **nodemon** (^3.0.1) - Dev dependency for auto-reload
 
 ## 🔐 Security Notes
 
 For production:
-- [ ] Update CORS settings to specific origins
-- [ ] Add authentication & authorization
-- [ ] Add input validation (Joi)
+- [x] CORS configuration (configurable via `src/config/cors.js`)
+- [x] Input validation with @hapi/joi
+- [ ] Add authentication & authorization (JWT)
 - [ ] Add rate limiting
 - [ ] Use HTTPS
-- [ ] Add request logging
-- [ ] Add security headers
+- [ ] Add request logging (winston/pino)
+- [ ] Add security headers (helmet)
+- [ ] Add environment-based CORS restrictions
 
 ## 📝 TODO
 
 - [ ] Implement database (PostgreSQL/Supabase)
 - [ ] Add authentication (JWT)
-- [ ] Add input validation (Joi)
+- [ ] Add advanced input validation for all endpoints
 - [ ] Add request logging (winston/pino)
 - [ ] Add API documentation (Swagger/OpenAPI)
 - [ ] Add unit tests (Jest)
 - [ ] Add integration tests
 - [ ] Add CI/CD pipeline
+- [ ] Add rate limiting middleware
+- [ ] Add caching layer (Redis)
 
 ## 📄 License
 

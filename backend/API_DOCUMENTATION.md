@@ -1,6 +1,8 @@
-# API Documentation - Cashier App
+# API Documentation - Cashier App Backend
 
-Base URL: `http://localhost:4000/api`
+**Author:** Hesa Firdaus  
+**Version:** 1.0.0  
+**Base URL:** `http://localhost:4000/api`
 
 ## Response Format
 
@@ -34,7 +36,7 @@ Check if API server is running.
 ```json
 {
   "status": "ok",
-  "timestamp": "2025-10-29T12:00:00.000Z",
+  "timestamp": "2025-11-02T12:00:00.000Z",
   "service": "Cashier App API"
 }
 ```
@@ -55,7 +57,7 @@ Get all categories.
     {
       "id": 1,
       "nama": "Makanan",
-      "createdAt": "2025-10-29T12:00:00.000Z"
+      "createdAt": "2025-11-02T12:00:00.000Z"
     }
   ]
 }
@@ -75,7 +77,7 @@ Get category by ID.
   "data": {
     "id": 1,
     "nama": "Makanan",
-    "createdAt": "2025-10-29T12:00:00.000Z"
+    "createdAt": "2025-11-02T12:00:00.000Z"
   }
 }
 ```
@@ -99,7 +101,7 @@ Create new category.
   "data": {
     "id": 4,
     "nama": "Makanan",
-    "createdAt": "2025-10-29T12:00:00.000Z"
+    "createdAt": "2025-11-02T12:00:00.000Z"
   }
 }
 ```
@@ -126,7 +128,7 @@ Update category.
   "data": {
     "id": 1,
     "nama": "Makanan Baru",
-    "updatedAt": "2025-10-29T12:00:00.000Z"
+    "updatedAt": "2025-11-02T12:00:00.000Z"
   }
 }
 ```
@@ -270,7 +272,7 @@ Update product.
     "id": 1,
     "nama": "Nasi Goreng Special",
     "harga": 18000,
-    "updatedAt": "2025-10-29T12:00:00.000Z"
+      "updatedAt": "2025-11-02T12:00:00.000Z"
   }
 }
 ```

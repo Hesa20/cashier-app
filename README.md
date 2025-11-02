@@ -11,21 +11,29 @@ Aplikasi kasir modern dengan arsitektur terpisah antara frontend dan backend, si
 ```
 cashier-app/
 ├── app/                  # Next.js App Router (Frontend)
+│   ├── page.js          # Home page (kasir interface)
+│   ├── sukses/          # Success page after checkout
+│   └── test/            # Test page
 ├── public/              # Static assets
+│   └── assets/images/   # Product images (makanan, minuman, cemilan)
 ├── src/                 # Frontend source code
 │   ├── components/      # React components
-│   ├── lib/            # API client & utilities
+│   │   ├── Menus.js    # Product display & category filter
+│   │   ├── Hasil.js    # Shopping cart display
+│   │   └── TotalBayar.js # Payment summary
+│   ├── lib/            # API client (axios)
 │   ├── styles/         # CSS files
 │   └── utils/          # Helper functions
-└── server/             # Backend API (Hapi.js)
-    ├── index.js        # Entry point
-    └── src/
-        ├── routes/     # API routes
-        ├── controllers/# Business logic
-        ├── models/     # Database models
-        ├── config/     # Configuration
-        ├── middleware/ # Custom middleware
-        └── utils/      # Backend utilities
+└── backend/            # Backend API (Hapi.js)
+    ├── src/
+    │   ├── controllers/ # Business logic
+    │   ├── models/      # In-memory data models
+    │   ├── routes/      # API routes
+    │   ├── config/      # CORS, env, logger, validation
+    │   ├── utils/       # Response helpers
+    │   └── index.js     # Server entry point
+    ├── package.json
+    └── API_DOCUMENTATION.md
 ```
 
 ## 🚀 Quick Start
@@ -55,14 +63,14 @@ Frontend (.env.local):
 cp .env.example .env.local
 ```
 
-Backend (server/.env):
+Backend (backend/.env):
 ```bash
-cd server
+cd backend
 cp .env.example .env
 cd ..
 ```
 
-Edit file `.env.local` dan `server/.env` sesuai kebutuhan.
+Edit file `.env.local` dan `backend/.env` sesuai kebutuhan.
 
 4. **Run development servers**
 ```bash
@@ -85,49 +93,53 @@ Ini akan menjalankan:
 
 ## 📡 API Endpoints
 
-Base URL: `http://localhost:4000`
+Base URL: `http://localhost:4000/api`
 
 ### Health Check
 ```
-GET /health
+GET /api/health
 ```
 
 ### Products
 ```
-GET    /products              # Get all products
-GET    /products?category.nama=Makanan  # Filter by category
-GET    /products/{id}         # Get by ID
-POST   /products              # Create new
-PUT    /products/{id}         # Update
-DELETE /products/{id}         # Delete
+GET    /api/products              # Get all products
+GET    /api/products?categoryId=1 # Filter by category ID
+GET    /api/products/:id          # Get by ID
+POST   /api/products              # Create new
+PUT    /api/products/:id          # Update
+DELETE /api/products/:id          # Delete
+PATCH  /api/products/:id/stok     # Update stock
 ```
 
 ### Categories
 ```
-GET    /categories            # Get all
-GET    /categories/{id}       # Get by ID
-POST   /categories            # Create
-PUT    /categories/{id}       # Update
-DELETE /categories/{id}       # Delete
+GET    /api/categories            # Get all
+GET    /api/categories/:id        # Get by ID
+POST   /api/categories            # Create
+PUT    /api/categories/:id        # Update
+DELETE /api/categories/:id        # Delete
 ```
 
 ### Cart (Keranjangs)
 ```
-GET    /keranjangs            # Get all cart items
-GET    /keranjangs/{id}       # Get by ID
-POST   /keranjangs            # Add to cart
-PUT    /keranjangs/{id}       # Update quantity
-DELETE /keranjangs/{id}       # Remove from cart
+GET    /api/keranjangs            # Get all cart items
+GET    /api/keranjangs/:id        # Get by ID
+POST   /api/keranjangs            # Add to cart
+PUT    /api/keranjangs/:id        # Update quantity
+DELETE /api/keranjangs/:id        # Remove from cart
+DELETE /api/keranjangs             # Clear all cart
 ```
 
 ### Orders (Pesanans)
 ```
-GET    /pesanans              # Get all orders
-GET    /pesanans/{id}         # Get by ID
-POST   /pesanans              # Create order
-PUT    /pesanans/{id}         # Update order
-DELETE /pesanans/{id}         # Delete order
+GET    /api/pesanans              # Get all orders
+GET    /api/pesanans/:id          # Get by ID
+POST   /api/pesanans              # Create order
+PATCH  /api/pesanans/:id/status   # Update status
+DELETE /api/pesanans/:id          # Delete order
 ```
+
+📖 **Full API Documentation**: See [backend/API_DOCUMENTATION.md](./backend/API_DOCUMENTATION.md)
 
 ## 🗄️ Database Integration
 
@@ -138,7 +150,7 @@ DELETE /pesanans/{id}         # Delete order
 CREATE DATABASE cashier_db;
 ```
 
-2. Configure `server/.env`:
+2. Configure `backend/.env`:
 ```env
 DB_HOST=localhost
 DB_PORT=5432
@@ -147,14 +159,14 @@ DB_USER=postgres
 DB_PASSWORD=your_password
 ```
 
-3. Update `server/src/config/database.js`
-4. Implement queries di `server/src/models/*.js`
+3. Update `backend/src/config/database.js` (create if not exists)
+4. Implement queries di `backend/src/models/*.js`
 
 ### Setup Database (Supabase)
 
 1. Buat project di [Supabase](https://supabase.com)
 2. Copy URL dan API keys
-3. Configure `server/.env`:
+3. Configure `backend/.env`:
 ```env
 SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_KEY=your-anon-key
@@ -162,32 +174,50 @@ SUPABASE_KEY=your-anon-key
 
 ## 📁 Struktur Backend
 
-### Routes (`server/src/routes/`)
+### Routes (`backend/src/routes/`)
 Mendefinisikan endpoint dan mapping ke controller
+- `categoryRoutes.js` - Category endpoints
+- `productRoutes.js` - Product endpoints
+- `keranjangRoutes.js` - Cart endpoints
+- `pesananRoutes.js` - Order endpoints
+- `healthRoutes.js` - Health check endpoint
 
-### Controllers (`server/src/controllers/`)
+### Controllers (`backend/src/controllers/`)
 Business logic dan request handling
+- `CategoryController.js`
+- `ProductController.js`
+- `KeranjangController.js`
+- `PesananController.js`
 
-### Models (`server/src/models/`)
-Database queries dan data manipulation
+### Models (`backend/src/models/`)
+In-memory data storage (ready for database integration)
+- `Category.js`
+- `Product.js`
+- `Keranjang.js`
+- `Pesanan.js`
 
-### Config (`server/src/config/`)
-Server dan database configuration
+### Config (`backend/src/config/`)
+Server configuration dan utilities
+- `env.js` - Environment variables
+- `cors.js` - CORS configuration
+- `logger.js` - Logging setup
+- `validation.js` - Input validation rules
 
 ## 🛠️ Development Guide
 
 ### Menambah Endpoint Baru
 
-1. Buat route di `server/src/routes/`
-2. Buat controller di `server/src/controllers/`
-3. Buat model di `server/src/models/`
-4. Register route di `server/src/routes/index.js`
+1. Buat route di `backend/src/routes/`
+2. Buat controller di `backend/src/controllers/`
+3. Buat model di `backend/src/models/` (jika perlu)
+4. Register route di `backend/src/routes/index.js`
 
 ### Menambah Komponen Frontend
 
 1. Buat komponen di `src/components/`
-2. Import dan gunakan di page (`app/`)
-3. Style di `src/styles/`
+2. Export dari `src/components/index.js`
+3. Import dan gunakan di page (`app/`)
+4. Style di `src/styles/`
 
 ## 📦 Tech Stack
 
@@ -200,20 +230,22 @@ Server dan database configuration
 - FontAwesome
 
 ### Backend
-- Hapi.js
+- Hapi.js 21
 - Node.js
-- PostgreSQL / Supabase (planned)
+- @hapi/joi (validation)
+- dotenv (environment variables)
+- In-memory storage (ready for PostgreSQL/Supabase)
 
 ## 📝 TODO
 
 Backend:
-- [ ] Implement database connection
-- [ ] Add authentication & authorization
-- [ ] Add input validation (Joi)
-- [ ] Add error handling middleware
-- [ ] Add logging (winston/pino)
-- [ ] Add API documentation (Swagger)
-- [ ] Add unit tests
+- [ ] Implement database connection (PostgreSQL/Supabase)
+- [ ] Add authentication & authorization (JWT)
+- [ ] Add request logging (winston/pino)
+- [ ] Add API documentation (Swagger/OpenAPI)
+- [ ] Add unit tests (Jest)
+- [ ] Add rate limiting
+- [ ] Add security headers
 
 Frontend:
 - [ ] Add loading states
@@ -221,6 +253,7 @@ Frontend:
 - [ ] Add form validation
 - [ ] Improve responsive design
 - [ ] Add dark mode
+- [ ] Add print receipt feature
 
 ## 📄 License
 
@@ -228,5 +261,5 @@ ISC
 
 ## 👤 Author
 
-[Your Name]
+Hesa Firdaus
 
