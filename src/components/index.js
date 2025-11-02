@@ -1,6 +1,6 @@
 import Hasil from './Hasil';
 import ListCategories from './ListCategories';
-import NavbarComponent from './NavbarComponent';
 import Menus from './Menus';
+import AccountInfo from './AccountInfo';
 
-export { Hasil, ListCategories, NavbarComponent, Menus };
+export { Hasil, ListCategories, Menus, AccountInfo };

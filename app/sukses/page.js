@@ -6,15 +6,20 @@ import api from '../../src/lib/api';
 
 export default function SuksesPage() {
   useEffect(() => {
+    // Clear cart after successful order
     api
       .get('keranjangs')
       .then(res => {
         const keranjangs = res.data;
-        keranjangs.forEach(item => {
-          api.delete(`keranjangs/${item.id}`).catch(err => console.error(err));
-        });
+        const deletePromises = keranjangs.map(item => 
+          api.delete(`keranjangs/${item.id}`)
+        );
+        return Promise.all(deletePromises);
       })
-      .catch(err => console.error(err));
+      .catch(err => {
+        console.error('Error clearing cart:', err);
+        // Silent error - cart cleanup is not critical for success page
+      });
   }, []);
 
   return (

@@ -1,7 +1,8 @@
-import React, { Component } from 'react';
+"use client";
+
+import React, { useEffect, useState } from 'react';
 import { Col, ListGroup } from 'react-bootstrap';
-import axios from 'axios';
-import { API_URL } from '../utils/constants';
+import api from '../lib/api';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUtensils, faCoffee, faCheese } from '@fortawesome/free-solid-svg-icons';
 
@@ -18,34 +19,42 @@ const Icon = ({ nama }) => {
   }
 };
 
-export default class ListCategories extends Component {
-  state = {
-    categories: [],
-  };
+export default function ListCategories({ changeCategory, categoriYangDipilih }) {
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  componentDidMount() {
-    axios
-      .get(API_URL + 'categories')
-      .then(res => {
-        this.setState({ categories: res.data });
+  useEffect(() => {
+    api
+      .get('categories')
+      .then((res) => setCategories(res.data))
+      .catch((error) => {
+        console.error('Failed to load categories', error);
       })
-      .catch(error => {
-        console.error('Error yaa ', error);
-      });
-  }
+      .finally(() => setLoading(false));
+  }, []);
 
-  render() {
-    const { categories } = this.state;
-    const { changeCategory, categoriYangDipilih } = this.props;
-
-    return (
-      <Col md={2} className="mt-3">
-        <h4 className="fw-bold text-center mb-3" style={{ letterSpacing: 0 }}>
-          List Kategori
-        </h4>
-        <hr className="mb-3" />
-        <ListGroup variant="flush" style={{ marginLeft: '5px' }}>
-          {categories.map(category => (
+  return (
+    <Col md={2} className="mt-3">
+      <h4 className="fw-bold text-center mb-3" style={{ letterSpacing: 0 }}>
+        List Kategori
+      </h4>
+      <hr className="mb-3" />
+      <ListGroup variant="flush" style={{ marginLeft: '5px' }}>
+        {loading ? (
+          <div className="px-3">
+            <div
+              className="spinner-border text-secondary"
+              role="status"
+              style={{ width: '1.25rem', height: '1.25rem' }}
+            >
+              <span className="visually-hidden">Loading...</span>
+            </div>
+            <span className="ms-2 text-muted">Memuat kategori...</span>
+          </div>
+        ) : categories.length === 0 ? (
+          <div className="text-muted px-3">Tidak ada kategori.</div>
+        ) : (
+          categories.map((category) => (
             <ListGroup.Item
               key={category.id}
               onClick={() => changeCategory(category.nama)}
@@ -57,13 +66,13 @@ export default class ListCategories extends Component {
               style={{ cursor: 'pointer', transition: 'background 0.2s' }}
             >
               <Icon nama={category.nama} />
-              <span className="ms-1" style={{ fontSize: '18px', marginLeft: '50px' }}>
+              <span className="ms-1" style={{ fontSize: '18px', marginLeft: '8px' }}>
                 {category.nama}
               </span>
             </ListGroup.Item>
-          ))}
-        </ListGroup>
-      </Col>
-    );
-  }
+          ))
+        )}
+      </ListGroup>
+    </Col>
+  );
 }

@@ -3,30 +3,60 @@
 import { faShoppingCart } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import api from '../lib/api';
-import React from 'react';
+import React, { useState } from 'react';
 import { Row, Col, Button } from 'react-bootstrap';
 import { numberWithCommas } from '../utils/utils';
 import { useRouter } from 'next/navigation';
+import swal from 'sweetalert';
 
 export default function TotalBayar({ keranjangs }) {
   const router = useRouter();
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const submitTotalBayar = async (totalBayar) => {
+    if (keranjangs.length === 0) {
+      swal({
+        title: 'Keranjang Kosong',
+        text: 'Silakan pilih produk terlebih dahulu',
+        icon: 'warning',
+        button: 'OK',
+      });
+      return;
+    }
+
+    setIsProcessing(true);
+
+    // Transform keranjangs to items format expected by backend
+    const items = keranjangs.map(item => ({
+      productId: item.productId,
+      jumlah: item.jumlah,
+      harga: item.product.harga,
+      totalHarga: item.totalHarga
+    }));
+
     const pesanan = {
-      total_bayar: totalBayar,
-      menus: keranjangs,
+      items: items,
+      totalHarga: totalBayar,
+      metodePembayaran: 'cash' // Default to cash, can be made dynamic later
     };
 
     try {
       await api.post('pesanans', pesanan);
-      // use Next.js router to navigate client-side
       router.push('/sukses');
     } catch (err) {
       console.error('Error submitting order', err);
+      swal({
+        title: 'Gagal Memproses Pesanan',
+        text: 'Terjadi kesalahan saat memproses pesanan Anda',
+        icon: 'error',
+        button: 'OK',
+      });
+    } finally {
+      setIsProcessing(false);
     }
   };
 
-  const totalBayar = (keranjangs || []).reduce((result, item) => result + item.total_harga, 0);
+  const totalBayar = (keranjangs || []).reduce((result, item) => result + item.totalHarga, 0); // Changed from total_harga to totalHarga
 
   return (
     <>
@@ -50,8 +80,18 @@ export default function TotalBayar({ keranjangs }) {
                 borderRadius: '8px',
               }}
               onClick={() => submitTotalBayar(totalBayar)}
+              disabled={isProcessing || keranjangs.length === 0}
             >
-              <FontAwesomeIcon icon={faShoppingCart} /> <strong>BAYAR</strong>
+              {isProcessing ? (
+                <>
+                  <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                  <strong>Memproses...</strong>
+                </>
+              ) : (
+                <>
+                  <FontAwesomeIcon icon={faShoppingCart} /> <strong>BAYAR</strong>
+                </>
+              )}
             </Button>
           </Col>
         </Row>
@@ -72,8 +112,18 @@ export default function TotalBayar({ keranjangs }) {
               style={{ backgroundColor: '#47422e', border: 'none' }}
               size="lg"
               onClick={() => submitTotalBayar(totalBayar)}
+              disabled={isProcessing || keranjangs.length === 0}
             >
-              <FontAwesomeIcon icon={faShoppingCart} /> <strong>BAYAR</strong>
+              {isProcessing ? (
+                <>
+                  <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                  <strong>Memproses...</strong>
+                </>
+              ) : (
+                <>
+                  <FontAwesomeIcon icon={faShoppingCart} /> <strong>BAYAR</strong>
+                </>
+              )}
             </Button>
           </Col>
         </Row>

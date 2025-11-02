@@ -5,9 +5,9 @@
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.30",
     "@fortawesome/free-solid-svg-icons": "^5.14.0",
-    "@fortawesome/react-fontawesome": "^0.1.11",
+    "@fortawesome/react-fontawesome": "^0.2.0",
     "@hapi/hapi": "^21.4.3",
-    "axios": "^1.9.0",
+    "axios": "^1.6.2",
     "bootstrap": "^5.3.6",
     "concurrently": "^9.2.1",
     "dotenv": "^17.2.3",
@@ -20,7 +20,7 @@
   "scripts": {
     "dev": "concurrently \"npm run dev:web\" \"npm run dev:api\"",
     "dev:web": "next dev -p 3000",
-    "dev:api": "node server/index.js",
+    "dev:api": "cd backend && npm run dev",
     "start": "next start -p 3000",
     "build": "next build",
     "lint": "eslint . --ext .js,.jsx || true",

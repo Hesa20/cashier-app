@@ -1,0 +1,26 @@
+{
+  "name": "cashier-app-backend",
+  "version": "1.0.0",
+  "description": "Backend API for Cashier App using Hapi.js",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "hapi",
+    "rest-api",
+    "cashier"
+  ],
+  "author": "Hesa Firdaus",
+  "license": "ISC",
+  "dependencies": {
+    "@hapi/hapi": "^21.3.2",
+    "@hapi/joi": "^17.1.1",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}

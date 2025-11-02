@@ -1,5 +1,4 @@
 import '../src/styles/index.css';
-import '../src/styles/app.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import NavbarClient from '../src/components/NavbarClient';
 

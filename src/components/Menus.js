@@ -3,30 +3,33 @@ import { Col, Card } from 'react-bootstrap';
 import { numberWithCommas } from '../utils/utils';
 
 const Menus = ({ menu, masukKeranjang }) => {
+  const categoryName = menu.category?.nama?.toLowerCase() || 'makanan';
+  const imagePath = `/assets/images/${categoryName}/${menu.gambar}`;
+
   return (
-    <Col md={4} xs={6} className="mb-4" style={{ height: '300px' }}>
+    <Col md={4} xs={6} className="mb-4">
       <Card
-        className="shadow-sm lighter-clr"
-        style={{ height: '300px', cursor: 'pointer', borderRadius: '15px', border: 'none' }}
+        className="shadow-sm lighter-clr product-card"
+        style={{ cursor: 'pointer', borderRadius: '15px', border: 'none', overflow: 'hidden' }}
         onClick={() => masukKeranjang(menu)}
       >
-        <Card.Img
-          variant="top"
-          height={'180px'}
-          style={{ objectFit: 'cover', borderRadius: '15px 15px 0 0' }}
-          // Next.js serves files from the `public/` folder at the root path
-          src={'/assets/images/' + menu.category.nama.toLowerCase() + '/' + menu.gambar}
-          onError={(e) => {
-            // fallback to default image when file not found or request fails
-            e.target.onerror = null;
-            e.target.src = '/assets/images/default.png';
-          }}
-        />
-        <Card.Body>
-          <Card.Title>
+        <div className="product-image-wrapper">
+          <Card.Img
+            variant="top"
+            src={imagePath}
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.src = '/assets/images/default.png';
+            }}
+            alt={menu.nama}
+            className="product-image"
+          />
+        </div>
+        <Card.Body className="product-card-body">
+          <Card.Title className="product-title">
             {menu.nama} <strong>({menu.kode})</strong>
           </Card.Title>
-          <Card.Text>Rp. {numberWithCommas(menu.harga)}</Card.Text>
+          <Card.Text className="product-price">Rp. {numberWithCommas(menu.harga)}</Card.Text>
         </Card.Body>
       </Card>
     </Col>
