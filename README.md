@@ -2,39 +2,53 @@
 
 Aplikasi kasir (POS) full-stack dengan Next.js (Frontend) dan Hapi.js (Backend REST API).
 
+> **🎉 Mono-Repo Structure**: Proyek ini sekarang menggunakan npm workspaces untuk mengelola multiple packages. Lihat [MONOREPO_STRUCTURE.md](./MONOREPO_STRUCTURE.md) untuk detail lengkap.
+
 ## 📋 Deskripsi
 
 Aplikasi kasir modern dengan arsitektur terpisah antara frontend dan backend, siap untuk integrasi database PostgreSQL/Supabase.
 
 ## 🏗️ Arsitektur
 
+**Struktur Mono-Repo** (npm workspaces):
+
 ```
 cashier-app/
-├── app/                  # Next.js App Router (Frontend)
-│   ├── page.js          # Home page (kasir interface)
-│   ├── sukses/          # Success page after checkout
-│   └── test/            # Test page
-├── public/              # Static assets
-│   └── assets/images/   # Product images (makanan, minuman, cemilan)
-├── src/                 # Frontend source code
-│   ├── components/      # React components
-│   │   ├── Menus.js    # Product display & category filter
-│   │   ├── Hasil.js    # Shopping cart display
-│   │   └── TotalBayar.js # Payment summary
-│   ├── lib/            # API client (axios)
-│   ├── styles/         # CSS files
-│   └── utils/          # Helper functions
-└── backend/            # Backend API (Hapi.js)
-    ├── src/
-    │   ├── controllers/ # Business logic
-    │   ├── models/      # In-memory data models
-    │   ├── routes/      # API routes
-    │   ├── config/      # CORS, env, logger, validation
-    │   ├── utils/       # Response helpers
-    │   └── index.js     # Server entry point
-    ├── package.json
-    └── API_DOCUMENTATION.md
+├── apps/
+│   └── api/             # Backend API (Hapi.js) - dipindah dari backend/
+│       ├── src/
+│       │   ├── controllers/
+│       │   ├── models/
+│       │   ├── routes/
+│       │   ├── config/
+│       │   └── index.js
+│       ├── package.json
+│       └── README.md
+│
+├── packages/
+│   └── common/          # Shared code (validation, types, utils)
+│       ├── package.json
+│       ├── index.js
+│       └── README.md
+│
+├── app/                 # Next.js App Router (Frontend - masih di root)
+│   ├── page.js         # Kasir interface
+│   ├── sukses/         # Success page
+│   └── test/           # Test page
+│
+├── src/                 # Frontend source (masih di root)
+│   ├── components/     # React components
+│   ├── lib/           # API client (axios)
+│   ├── styles/        # CSS
+│   └── utils/         # Helpers
+│
+├── public/             # Static assets (masih di root)
+│   └── assets/images/ # Product images
+│
+└── package.json        # Root workspace config
 ```
+
+> 📖 **Detail struktur**: Lihat [MONOREPO_STRUCTURE.md](./MONOREPO_STRUCTURE.md) untuk penjelasan lengkap struktur mono-repo, fase migrasi, dan rencana ke depan.
 
 ## 🚀 Quick Start
 
@@ -63,14 +77,14 @@ Frontend (.env.local):
 cp .env.example .env.local
 ```
 
-Backend (backend/.env):
+Backend (apps/api/.env):
 ```bash
-cd backend
+cd apps/api
 cp .env.example .env
-cd ..
+cd ../..
 ```
 
-Edit file `.env.local` dan `backend/.env` sesuai kebutuhan.
+Edit file `.env.local` dan `apps/api/.env` sesuai kebutuhan.
 
 4. **Run development servers**
 ```bash
@@ -139,7 +153,7 @@ PATCH  /api/pesanans/:id/status   # Update status
 DELETE /api/pesanans/:id          # Delete order
 ```
 
-📖 **Full API Documentation**: See [backend/API_DOCUMENTATION.md](./backend/API_DOCUMENTATION.md)
+📖 **Full API Documentation**: See [apps/api/API_DOCUMENTATION.md](./apps/api/API_DOCUMENTATION.md)
 
 ## 🗄️ Database Integration
 
@@ -150,7 +164,7 @@ DELETE /api/pesanans/:id          # Delete order
 CREATE DATABASE cashier_db;
 ```
 
-2. Configure `backend/.env`:
+2. Configure `apps/api/.env`:
 ```env
 DB_HOST=localhost
 DB_PORT=5432
@@ -159,14 +173,14 @@ DB_USER=postgres
 DB_PASSWORD=your_password
 ```
 
-3. Update `backend/src/config/database.js` (create if not exists)
-4. Implement queries di `backend/src/models/*.js`
+3. Update `apps/api/src/config/database.js` (create if not exists)
+4. Implement queries di `apps/api/src/models/*.js`
 
 ### Setup Database (Supabase)
 
 1. Buat project di [Supabase](https://supabase.com)
 2. Copy URL dan API keys
-3. Configure `backend/.env`:
+3. Configure `apps/api/.env`:
 ```env
 SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_KEY=your-anon-key
@@ -174,7 +188,9 @@ SUPABASE_KEY=your-anon-key
 
 ## 📁 Struktur Backend
 
-### Routes (`backend/src/routes/`)
+> **Lokasi**: `apps/api/`
+
+### Routes (`apps/api/src/routes/`)
 Mendefinisikan endpoint dan mapping ke controller
 - `categoryRoutes.js` - Category endpoints
 - `productRoutes.js` - Product endpoints
@@ -182,21 +198,21 @@ Mendefinisikan endpoint dan mapping ke controller
 - `pesananRoutes.js` - Order endpoints
 - `healthRoutes.js` - Health check endpoint
 
-### Controllers (`backend/src/controllers/`)
+### Controllers (`apps/api/src/controllers/`)
 Business logic dan request handling
 - `CategoryController.js`
 - `ProductController.js`
 - `KeranjangController.js`
 - `PesananController.js`
 
-### Models (`backend/src/models/`)
+### Models (`apps/api/src/models/`)
 In-memory data storage (ready for database integration)
 - `Category.js`
 - `Product.js`
 - `Keranjang.js`
 - `Pesanan.js`
 
-### Config (`backend/src/config/`)
+### Config (`apps/api/src/config/`)
 Server configuration dan utilities
 - `env.js` - Environment variables
 - `cors.js` - CORS configuration
@@ -207,10 +223,10 @@ Server configuration dan utilities
 
 ### Menambah Endpoint Baru
 
-1. Buat route di `backend/src/routes/`
-2. Buat controller di `backend/src/controllers/`
-3. Buat model di `backend/src/models/` (jika perlu)
-4. Register route di `backend/src/routes/index.js`
+1. Buat route di `apps/api/src/routes/`
+2. Buat controller di `apps/api/src/controllers/`
+3. Buat model di `apps/api/src/models/` (jika perlu)
+4. Register route di `apps/api/src/routes/index.js`
 
 ### Menambah Komponen Frontend
 

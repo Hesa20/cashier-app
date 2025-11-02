@@ -2,6 +2,10 @@
   "name": "kasir-app",
   "version": "0.1.0",
   "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.30",
     "@fortawesome/free-solid-svg-icons": "^5.14.0",
@@ -20,7 +24,7 @@
   "scripts": {
     "dev": "concurrently \"npm run dev:web\" \"npm run dev:api\"",
     "dev:web": "next dev -p 3000",
-    "dev:api": "cd backend && npm run dev",
+    "dev:api": "cd apps/api && npm run dev",
     "start": "next start -p 3000",
     "build": "next build",
     "lint": "eslint . --ext .js,.jsx || true",

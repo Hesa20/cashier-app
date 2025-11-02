@@ -4,7 +4,10 @@
 /node_modules
 /.pnp
 .pnp.js
-backend/node_modules
+
+# Workspace node_modules
+apps/*/node_modules
+packages/*/node_modules
 
 # testing
 /coverage
@@ -38,9 +41,12 @@ dist/
 .env.development.local
 .env.test.local
 .env.production.local
-backend/.env
-backend/.env.local
-backend/.env.production
+
+# Workspace env files
+apps/*/.env
+apps/*/.env.local
+apps/*/.env.production
+packages/*/.env
 
 # Example envs may be tracked; do not ignore *.example by default
 
