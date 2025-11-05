@@ -3,8 +3,20 @@ import { Col, Card } from 'react-bootstrap';
 import { numberWithCommas } from '../utils/utils';
 
 const Menus = ({ menu, masukKeranjang }) => {
+  // Map category names to folder names
+  const categoryFolderMap = {
+    'makanan': 'makanan',
+    'minuman': 'minuman',
+    'snack': 'cemilan'  // Snack folder is named 'cemilan'
+  };
+  
   const categoryName = menu.category?.nama?.toLowerCase() || 'makanan';
-  const imagePath = `/assets/images/${categoryName}/${menu.gambar}`;
+  const folderName = categoryFolderMap[categoryName] || 'makanan';
+  
+  // If gambar is default.png or null, use root default image
+  const imagePath = (menu.gambar === 'default.png' || !menu.gambar)
+    ? '/assets/images/default.png'
+    : `/assets/images/${folderName}/${menu.gambar}`;
 
   return (
     <Col md={4} xs={6} className="mb-4">

@@ -28,26 +28,34 @@ export default function TotalBayar({ keranjangs }) {
 
     // Transform keranjangs to items format expected by backend
     const items = keranjangs.map(item => ({
-      productId: item.productId,
-      jumlah: item.jumlah,
-      harga: item.product.harga,
-      totalHarga: item.totalHarga
+      productId: item.product.id,
+      jumlah: item.jumlah
     }));
 
     const pesanan = {
       items: items,
-      totalHarga: totalBayar,
-      metodePembayaran: 'cash' // Default to cash, can be made dynamic later
+      totalAmount: totalBayar,
+      paymentMethod: 'cash',
+      paidAmount: totalBayar, // Can be made dynamic for change calculation later
+      notes: ''
     };
 
+    console.log('[TotalBayar] Submitting order:', pesanan);
+
     try {
-      await api.post('pesanans', pesanan);
+      const response = await api.post('orders', pesanan);
+      console.log('[TotalBayar] Order success:', response.data);
+      
+      // Clear cart from localStorage
+      localStorage.removeItem('cart');
+      
+      // Navigate to success page
       router.push('/sukses');
     } catch (err) {
-      console.error('Error submitting order', err);
+      console.error('[TotalBayar] Error submitting order:', err);
       swal({
         title: 'Gagal Memproses Pesanan',
-        text: 'Terjadi kesalahan saat memproses pesanan Anda',
+        text: err.response?.data?.message || 'Terjadi kesalahan saat memproses pesanan Anda',
         icon: 'error',
         button: 'OK',
       });
@@ -56,7 +64,7 @@ export default function TotalBayar({ keranjangs }) {
     }
   };
 
-  const totalBayar = (keranjangs || []).reduce((result, item) => result + item.totalHarga, 0); // Changed from total_harga to totalHarga
+  const totalBayar = (keranjangs || []).reduce((result, item) => result + item.total_harga, 0);
 
   return (
     <>

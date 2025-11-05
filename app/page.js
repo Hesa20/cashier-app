@@ -11,6 +11,19 @@ export default function Page() {
   const [categoriYangDipilih, setCategoriYangDipilih] = useState('Makanan');
   const [keranjangs, setKeranjangs] = useState([]);
 
+  // Load cart from localStorage on mount
+  useEffect(() => {
+    const savedCart = localStorage.getItem('cart');
+    if (savedCart) {
+      try {
+        setKeranjangs(JSON.parse(savedCart));
+      } catch (e) {
+        console.error('Failed to parse cart from localStorage:', e);
+        localStorage.removeItem('cart');
+      }
+    }
+  }, []);
+
   const fetchProducts = async category => {
     setLoadingMenus(true);
     
@@ -48,19 +61,23 @@ export default function Page() {
     }
   };
 
-  const fetchKeranjangs = async () => {
-    try {
-      const response = await api.get('keranjangs');
-      setKeranjangs(response.data);
-    } catch (err) {
-      console.error('Failed to fetch cart:', err);
-      // Silent error for cart fetch, as it's not critical for initial page load
+  const fetchKeranjangs = () => {
+    // Cart is now managed in localStorage, just read from state
+    // This function is kept for compatibility with Hasil component
+    const savedCart = localStorage.getItem('cart');
+    if (savedCart) {
+      try {
+        setKeranjangs(JSON.parse(savedCart));
+      } catch (e) {
+        console.error('Failed to parse cart:', e);
+        setKeranjangs([]);
+      }
     }
   };
 
   useEffect(() => {
     fetchProducts(categoriYangDipilih);
-    fetchKeranjangs();
+    // Don't need to fetch cart from API anymore, it's in localStorage
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -70,51 +87,60 @@ export default function Page() {
     fetchProducts(value);
   };
 
-  const masukKeranjang = async value => {
+  const masukKeranjang = value => {
     try {
-      // Check if product already in cart
-      const checkResponse = await api.get(`keranjangs?productId=${value.id}`);
-      const existingItems = checkResponse.data;
+      console.log('[masukKeranjang] Adding product to cart:', value);
       
-      if (existingItems.length === 0) {
-        // Add new item to cart
-        const keranjang = { 
-          productId: value.id,
-          jumlah: 1, 
-          totalHarga: value.harga
-        };
-        
-        await api.post('keranjangs', keranjang);
-        swal({ 
-          title: 'Sukses Masuk Keranjang', 
-          text: `${value.nama} ditambahkan ke keranjang`, 
-          icon: 'success', 
-          button: false, 
-          timer: 1500 
-        });
-      } else {
+      // Get current cart from state
+      const currentCart = [...keranjangs];
+      
+      // Check if product already in cart
+      const existingIndex = currentCart.findIndex(item => item.product?.id === value.id);
+      
+      if (existingIndex >= 0) {
         // Update existing item quantity
-        const existingItem = existingItems[0];
-        const keranjang = { 
-          productId: value.id,
-          jumlah: existingItem.jumlah + 1, 
-          totalHarga: existingItem.totalHarga + value.harga
+        currentCart[existingIndex] = {
+          ...currentCart[existingIndex],
+          jumlah: currentCart[existingIndex].jumlah + 1,
+          total_harga: (currentCart[existingIndex].jumlah + 1) * value.harga
         };
         
-        await api.put(`keranjangs/${existingItem.id}`, keranjang);
-        swal({ 
-          title: 'Sukses Masuk Keranjang', 
-          text: `${value.nama} ditambahkan ke keranjang`, 
-          icon: 'success', 
-          button: false, 
-          timer: 1500 
-        });
+        console.log('[masukKeranjang] Updated existing item:', currentCart[existingIndex]);
+      } else {
+        // Add new item to cart with proper structure
+        const newItem = {
+          id: `cart-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`, // Temporary local ID
+          product: {
+            id: value.id,
+            nama: value.nama,
+            harga: value.harga,
+            gambar: value.gambar,
+            category: value.category
+          },
+          jumlah: 1,
+          total_harga: value.harga,
+          keterangan: ''
+        };
+        
+        currentCart.push(newItem);
+        console.log('[masukKeranjang] Added new item:', newItem);
       }
       
-      // Refresh cart
-      await fetchKeranjangs();
+      // Update state and localStorage
+      setKeranjangs(currentCart);
+      localStorage.setItem('cart', JSON.stringify(currentCart));
+      
+      console.log('[masukKeranjang] Cart updated, total items:', currentCart.length);
+      
+      swal({ 
+        title: 'Sukses Masuk Keranjang', 
+        text: `${value.nama} ditambahkan ke keranjang`, 
+        icon: 'success', 
+        button: false, 
+        timer: 1500 
+      });
     } catch (err) {
-      console.error('Error with cart operation:', err);
+      console.error('[masukKeranjang] Error:', err);
       swal({
         title: 'Gagal',
         text: 'Terjadi kesalahan saat menambahkan ke keranjang',

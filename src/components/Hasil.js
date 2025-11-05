@@ -20,7 +20,7 @@ export default function Hasil({ keranjangs, fetchKeranjangs }) {
     setKeranjangDetail(menuKeranjang);
     setJumlah(menuKeranjang.jumlah);
     setKeterangan(menuKeranjang.keterangan || '');
-    setTotalHarga(menuKeranjang.totalHarga); // Changed from total_harga to totalHarga
+    setTotalHarga(menuKeranjang.total_harga); // Use total_harga from cart item
   };
 
   const handleClose = () => {
@@ -45,68 +45,57 @@ export default function Hasil({ keranjangs, fetchKeranjangs }) {
     setKeterangan(event.target.value);
   };
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = (event) => {
     event.preventDefault();
     handleClose();
 
-    const data = {
-      jumlah: parseInt(jumlah, 10), // Ensure it's sent as number
-      totalHarga: parseInt(totalHarga, 10), // Ensure it's sent as number
-      keterangan: keterangan || '', // Ensure it's a string
-    };
+    // Update cart in localStorage
+    const updatedCart = keranjangs.map(item => {
+      if (item.id === keranjangDetail.id) {
+        return {
+          ...item,
+          jumlah: parseInt(jumlah, 10),
+          total_harga: parseInt(totalHarga, 10),
+          keterangan: keterangan || ''
+        };
+      }
+      return item;
+    });
 
-    console.log('🔍 [DEBUG] Sending update data:', data);
-    console.log('🔍 [DEBUG] Keranjang ID:', keranjangDetail.id);
-
-    try {
-      await api.put(`keranjangs/${keranjangDetail.id}`, data);
-      
-      // Refresh keranjang data setelah update berhasil
-      await fetchKeranjangs();
-      
-      swal({
-        title: 'Update Pesanan!',
-        text: `Sukses Update Pesanan ${keranjangDetail.product.nama}`,
-        icon: 'success',
-        button: false,
-        timer: 1500,
-      });
-    } catch (error) {
-      console.error('Error updating cart:', error);
-      swal({
-        title: 'Gagal Update!',
-        text: 'Terjadi kesalahan saat mengupdate pesanan',
-        icon: 'error',
-        button: 'OK',
-      });
-    }
+    // Update localStorage
+    localStorage.setItem('cart', JSON.stringify(updatedCart));
+    
+    // Refresh cart display
+    fetchKeranjangs();
+    
+    swal({
+      title: 'Update Pesanan!',
+      text: `Sukses Update Pesanan ${keranjangDetail.product.nama}`,
+      icon: 'success',
+      button: false,
+      timer: 1500,
+    });
   };
 
-  const hapusPesanan = async (id) => {
+  const hapusPesanan = (id) => {
     handleClose();
 
-    try {
-      await api.delete(`keranjangs/${id}`);
-      
-      // Refresh keranjang data setelah delete berhasil
-      await fetchKeranjangs();
-      
-      swal({
-        title: 'Hapus Pesanan!',
-        text: `Sukses Hapus Pesanan ${keranjangDetail.product.nama}`,
-        icon: 'error',
-        button: false,
-        timer: 1500,
-      });
-    } catch (error) {
-      console.error('Error deleting cart item:', error);
-      swal({
-        title: 'Gagal Hapus!',
-        text: 'Terjadi kesalahan saat menghapus pesanan',
-        icon: 'error',
-        button: 'OK',
-      });
-    }
+    // Remove item from cart
+    const updatedCart = keranjangs.filter(item => item.id !== id);
+    
+    // Update localStorage
+    localStorage.setItem('cart', JSON.stringify(updatedCart));
+    
+    // Refresh cart display
+    fetchKeranjangs();
+    
+    swal({
+      title: 'Hapus Pesanan!',
+      text: `Sukses Hapus Pesanan ${keranjangDetail.product.nama}`,
+      icon: 'error',
+      button: false,
+      timer: 1500,
+    });
   };
 
   return (
@@ -152,7 +141,7 @@ export default function Hasil({ keranjangs, fetchKeranjangs }) {
                   </Col>
                   <Col>
                     <strong className="float-right">
-                      Rp. {numberWithCommas(menuKeranjang.totalHarga)}
+                      Rp. {numberWithCommas(menuKeranjang.total_harga)}
                     </strong>
                   </Col>
                 </Row>

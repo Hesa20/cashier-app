@@ -32,7 +32,7 @@ const ProductController = {
         deskripsi: prod.description,
         harga: parseFloat(prod.price),
         stok: prod.stock,
-        gambar: prod.image_url,
+        gambar: prod.image_url || 'default.png', // Default image if null
         categoryId: prod.category_id,
         category: prod.categories ? { nama: prod.categories.name } : null
       }));
@@ -69,7 +69,7 @@ const ProductController = {
         deskripsi: data.description,
         harga: parseFloat(data.price),
         stok: data.stock,
-        gambar: data.image_url,
+        gambar: data.image_url || 'default.png', // Default image if null
         categoryId: data.category_id,
         category: data.categories ? { nama: data.categories.name } : null
       };
@@ -115,7 +115,7 @@ const ProductController = {
           deskripsi: data.description,
           harga: parseFloat(data.price),
           stok: data.stock,
-          gambar: data.image_url,
+          gambar: data.image_url || 'default.png', // Default image if null
           categoryId: data.category_id
         }
       }).code(201);
@@ -167,7 +167,7 @@ const ProductController = {
           deskripsi: data.description,
           harga: parseFloat(data.price),
           stok: data.stock,
-          gambar: data.image_url,
+          gambar: data.image_url || 'default.png', // Default image if null
           categoryId: data.category_id
         }
       }).code(200);
