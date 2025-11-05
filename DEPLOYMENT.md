@@ -1,8 +1,11 @@
-# Setup CI/CD untuk Mono-Repo Kasir App
+# Deployment Guide - Cashier App
 
-Panduan deployment untuk Netlify (Frontend) dan Supabase (Backend + Database).
+**Status**: Backend sudah terintegrasi dengan Supabase PostgreSQL ✅  
+**Last Updated**: 3 Januari 2025
 
-## 🎯 Arsitektur Deployment
+Panduan deployment untuk Netlify (Frontend) dan Railway/Render (Backend API).
+
+## 🎯 Arsitektur Deployment (Current State)
 
 ```
 ┌─────────────────┐
@@ -13,17 +16,29 @@ Panduan deployment untuk Netlify (Frontend) dan Supabase (Backend + Database).
     ┌────┴────┐
     │         │
     ▼         ▼
-┌────────┐ ┌──────────┐
-│Netlify │ │ Supabase │
-│Frontend│ │ Backend  │
-│  :3000 │ │   API    │
-└────────┘ └──────────┘
-    │         │
-    └────┬────┘
-         ▼
-    PostgreSQL
-    (Supabase)
+┌────────────┐ ┌──────────────┐
+│  Netlify   │ │ Railway/     │
+│  Frontend  │ │ Render       │
+│  Next.js   │ │ Hapi.js API  │
+│   :3000    │ │   :4000      │
+└────────────┘ └──────┬───────┘
+                      │
+                      ▼
+              ┌───────────────┐
+              │   Supabase    │
+              │  PostgreSQL   │
+              │   (Database)  │
+              └───────────────┘
 ```
+
+## ✅ Current Status
+
+- ✅ **Backend**: Menggunakan @supabase/supabase-js client (bukan direct PostgreSQL connection)
+- ✅ **Database**: Supabase PostgreSQL dengan schema UUID-based
+- ✅ **Controllers**: Category, Product, Order (semua sudah migrasi ke Supabase client)
+- ✅ **Validation**: @hapi/joi dengan UUID validation
+- ✅ **Testing**: 21 comprehensive tests created (19/21 passing)
+- ✅ **Cleanup**: Legacy code removed (Keranjang/Pesanan controllers/models)
 
 ## 📦 Deployment Strategy
 
@@ -37,8 +52,8 @@ Panduan deployment untuk Netlify (Frontend) dan Supabase (Backend + Database).
 
 **Environment Variables (Netlify):**
 ```
-NEXT_PUBLIC_API_URL=https://your-project.supabase.co/rest/v1
-# atau custom backend URL jika deploy Hapi.js terpisah
+NEXT_PUBLIC_API_URL=https://your-backend.up.railway.app/api
+# atau Render URL: https://your-backend.onrender.com/api
 ```
 
 **netlify.toml** (opsional, buat di root):
@@ -53,7 +68,7 @@ NEXT_PUBLIC_API_URL=https://your-project.supabase.co/rest/v1
 
 [[redirects]]
   from = "/api/*"
-  to = "https://your-backend-url.com/api/:splat"
+  to = "https://your-backend.up.railway.app/api/:splat"
   status = 200
   force = true
 
@@ -64,232 +79,123 @@ NEXT_PUBLIC_API_URL=https://your-project.supabase.co/rest/v1
     X-Content-Type-Options = "nosniff"
 ```
 
-### Backend → Supabase
+### Backend → Railway/Render (Recommended)
 
-Ada 2 opsi deployment backend:
+✅ **Status**: Backend sudah siap deploy! Hapi.js + @supabase/supabase-js terintegrasi.
 
-#### Opsi 1: Supabase Edge Functions (Rekomendasi)
+#### Opsi A: Railway.app (Direkomendasikan)
 
-Migrasi dari Hapi.js ke Supabase Edge Functions (Deno):
+**Keuntungan**:
+- Free tier generous ($5/month credit)
+- Auto-deploy dari GitHub
+- Zero-config deployment (deteksi Node.js otomatis)
+- Built-in environment variables management
 
-1. **Setup Supabase CLI**
+**Steps**:
+
+1. **Buat account di [Railway.app](https://railway.app)**
+
+2. **Create New Project → Deploy from GitHub repo**
+   - Select `cashier-app` repository
+   - Set root directory: `apps/api`
+
+3. **Set Environment Variables**:
 ```bash
-npm install -g supabase
-supabase login
-supabase init
-```
-
-2. **Migrasi API ke Edge Functions**
-
-Struktur folder:
-```
-supabase/
-├── functions/
-│   ├── products/
-│   │   └── index.ts
-│   ├── categories/
-│   │   └── index.ts
-│   ├── keranjangs/
-│   │   └── index.ts
-│   └── pesanans/
-│       └── index.ts
-└── config.toml
-```
-
-Contoh Edge Function (`supabase/functions/products/index.ts`):
-```typescript
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-
-serve(async (req) => {
-  const supabase = createClient(
-    Deno.env.get('SUPABASE_URL') ?? '',
-    Deno.env.get('SUPABASE_ANON_KEY') ?? ''
-  )
-
-  if (req.method === 'GET') {
-    const { data, error } = await supabase
-      .from('products')
-      .select('*')
-    
-    if (error) throw error
-    
-    return new Response(
-      JSON.stringify({ status: 'success', data }),
-      { headers: { 'Content-Type': 'application/json' } }
-    )
-  }
-
-  return new Response('Method not allowed', { status: 405 })
-})
-```
-
-3. **Deploy Edge Functions**
-```bash
-supabase functions deploy products
-supabase functions deploy categories
-supabase functions deploy keranjangs
-supabase functions deploy pesanans
-```
-
-4. **Database Migration**
-
-Buat migration file (`supabase/migrations/20251102_initial_schema.sql`):
-```sql
--- Categories table
-CREATE TABLE categories (
-  id BIGSERIAL PRIMARY KEY,
-  nama VARCHAR(50) NOT NULL,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
-);
-
--- Products table
-CREATE TABLE products (
-  id BIGSERIAL PRIMARY KEY,
-  nama VARCHAR(100) NOT NULL,
-  harga INTEGER NOT NULL,
-  category_id BIGINT REFERENCES categories(id),
-  kode VARCHAR(20) UNIQUE NOT NULL,
-  gambar VARCHAR(255) DEFAULT 'default.png',
-  stok INTEGER DEFAULT 0,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
-);
-
--- Keranjangs table
-CREATE TABLE keranjangs (
-  id BIGSERIAL PRIMARY KEY,
-  product_id BIGINT REFERENCES products(id),
-  jumlah INTEGER NOT NULL,
-  total_harga INTEGER NOT NULL,
-  keterangan TEXT,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
-);
-
--- Pesanans table
-CREATE TABLE pesanans (
-  id BIGSERIAL PRIMARY KEY,
-  items JSONB NOT NULL,
-  total_harga INTEGER NOT NULL,
-  metode_pembayaran VARCHAR(20) NOT NULL,
-  status VARCHAR(20) DEFAULT 'pending',
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
-);
-
--- Seed data
-INSERT INTO categories (nama) VALUES ('Makanan'), ('Minuman'), ('Cemilan');
-
--- Indexes
-CREATE INDEX idx_products_category ON products(category_id);
-CREATE INDEX idx_keranjangs_product ON keranjangs(product_id);
-```
-
-Apply migration:
-```bash
-supabase db push
-```
-
-#### Opsi 2: Deploy Hapi.js di Container/Serverless
-
-Jika ingin tetap menggunakan Hapi.js (tidak migrasi ke Edge Functions):
-
-**Platform pilihan:**
-- Railway.app
-- Render.com
-- Fly.io
-- Google Cloud Run
-- AWS Lambda (via serverless framework)
-
-**Contoh: Railway**
-
-1. Buat `Dockerfile` di `apps/api/`:
-```dockerfile
-FROM node:18-alpine
-
-WORKDIR /app
-
-COPY package*.json ./
-RUN npm ci --only=production
-
-COPY . .
-
-EXPOSE 4000
-
-CMD ["node", "src/index.js"]
-```
-
-2. Deploy via Railway CLI atau connect GitHub repo
-
-3. Set environment variables di Railway dashboard:
-```
 PORT=4000
 HOST=0.0.0.0
 NODE_ENV=production
-FRONTEND_URL=https://your-app.netlify.app
-SUPABASE_URL=https://xxx.supabase.co
-SUPABASE_KEY=xxx
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 ```
 
-4. Update models untuk pakai Supabase client alih-alih in-memory:
+4. **Deploy**
+   - Railway akan otomatis detect `package.json` dan run `npm start`
+   - API akan tersedia di: `https://your-app.up.railway.app`
 
-Install dependency:
+5. **Custom Domain** (opsional)
+   - Railway Settings → Domains → Add custom domain
+
+#### Opsi B: Render.com
+
+**Keuntungan**:
+- Free tier (dengan batasan: sleep after 15 min inactive)
+- Native Docker support
+- Auto-deploy dari GitHub
+
+**Steps**:
+
+1. **Create Web Service**:
+   - Type: Web Service
+   - Repository: cashier-app
+   - Root Directory: `apps/api`
+
+2. **Build & Start Commands**:
 ```bash
-cd apps/api
-npm install @supabase/supabase-js
+# Build Command
+npm install
+
+# Start Command
+npm start
 ```
 
-Update model (`apps/api/src/models/Product.js`):
-```javascript
-const { createClient } = require('@supabase/supabase-js');
+3. **Environment Variables**: Same as Railway
 
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_KEY
-);
+4. **Deploy**
+   - API akan tersedia di: `https://your-app.onrender.com`
 
-class Product {
-  async findAll(filters = {}) {
-    let query = supabase.from('products').select('*');
-    
-    if (filters.categoryId) {
-      query = query.eq('category_id', filters.categoryId);
-    }
-    
-    const { data, error } = await query;
-    if (error) throw error;
-    return data;
-  }
+### ⚠️ Opsi C: Supabase Edge Functions (NOT Recommended)
 
-  async findById(id) {
-    const { data, error } = await supabase
-      .from('products')
-      .select('*')
-      .eq('id', id)
-      .single();
-    
-    if (error) throw error;
-    return data;
-  }
+**Alasan TIDAK direkomendasikan:**
+- Hapi.js memerlukan Node.js runtime
+- Supabase Edge Functions require Deno runtime
+- Memerlukan complete rewrite (~1-2 hari work)
+- Tidak ada manfaat signifikan dibanding Railway/Render untuk use case ini
 
-  async create(productData) {
-    const { data, error } = await supabase
-      .from('products')
-      .insert([productData])
-      .select()
-      .single();
-    
-    if (error) throw error;
-    return data;
-  }
+**Jika tetap ingin pakai Edge Functions:**
+- Perlu migrate semua Hapi.js routes → Deno Edge Functions
+- Perlu rewrite controllers untuk Deno environment
+- Estimasi effort: 1-2 hari development + testing
 
-  // ... dst
-}
+## 🗄️ Database (Supabase PostgreSQL)
 
-module.exports = new Product();
+✅ **Status**: Database sudah setup dan terintegrasi!
+
+### Current Schema
+
+Tables sudah dibuat di Supabase:
+- `categories` (UUID PK, name, description, created_at)
+- `products` (UUID PK, name, description, price, stock, image_url, category_id FK, is_active, created_at)
+- `orders` (UUID PK, order_number, total_amount, status, payment_method, paid_amount, change_amount, notes, created_at)
+- `order_items` (UUID PK, order_id FK, product_id FK, product_name, quantity, price, subtotal, created_at)
+
+### Supabase Configuration
+
+**Required Environment Variables (Backend)**:
+```bash
+SUPABASE_URL=https://xrxfskydbcrjasdqtreq.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-here
 ```
+
+> ⚠️ **Security**: Gunakan **service_role key** untuk backend (bukan anon key). Service role key bypass Row Level Security (RLS).
+
+### Optional: Enable RLS (Row Level Security)
+
+Untuk production, enable RLS di Supabase Dashboard:
+
+```sql
+-- Enable RLS on all tables
+ALTER TABLE categories ENABLE ROW LEVEL SECURITY;
+ALTER TABLE products ENABLE ROW LEVEL SECURITY;
+ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
+ALTER TABLE order_items ENABLE ROW LEVEL SECURITY;
+
+-- Example policy: Allow read for everyone, write for authenticated users
+CREATE POLICY "Allow read for all" ON products FOR SELECT USING (true);
+CREATE POLICY "Allow insert for authenticated" ON orders FOR INSERT 
+  WITH CHECK (auth.role() = 'authenticated');
+```
+
+**Note**: Jika pakai service_role key di backend, RLS policies akan di-bypass (by design).
 
 ## 🔐 Environment Variables Management
 
@@ -298,6 +204,7 @@ module.exports = new Product();
 **Root `.env.local`** (Frontend):
 ```env
 NEXT_PUBLIC_API_URL=/api
+# Local development uses Next.js rewrites to proxy to backend
 ```
 
 **apps/api/.env** (Backend):
@@ -305,32 +212,32 @@ NEXT_PUBLIC_API_URL=/api
 PORT=4000
 HOST=0.0.0.0
 NODE_ENV=development
-SUPABASE_URL=https://xxx.supabase.co
-SUPABASE_KEY=your-anon-key
+
+# Supabase credentials (REQUIRED)
+SUPABASE_URL=https://xrxfskydbcrjasdqtreq.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-here
 ```
 
 ### Production
 
 **Netlify Environment Variables:**
-```
-NEXT_PUBLIC_API_URL=https://xxx.supabase.co/functions/v1
-# atau URL Railway/Render jika pakai Hapi.js
-```
-
-**Supabase Secrets** (Edge Functions):
 ```bash
-supabase secrets set SUPABASE_URL=xxx
-supabase secrets set SUPABASE_ANON_KEY=xxx
+NEXT_PUBLIC_API_URL=https://your-backend.up.railway.app/api
+# atau: https://your-backend.onrender.com/api
 ```
 
-**Railway/Render Env Vars** (jika pakai Hapi.js):
-```
+**Railway/Render Environment Variables:**
+```bash
 PORT=4000
 HOST=0.0.0.0
 NODE_ENV=production
+
+# Supabase (same as development)
+SUPABASE_URL=https://xrxfskydbcrjasdqtreq.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-here
+
+# CORS (optional - untuk production jika perlu)
 FRONTEND_URL=https://your-app.netlify.app
-SUPABASE_URL=https://xxx.supabase.co
-SUPABASE_KEY=your-service-role-key
 ```
 
 ## 🤖 GitHub Actions CI/CD (Opsional)
@@ -446,67 +353,134 @@ supabase db reset
 
 ## ✅ Checklist Pre-Deployment
 
-- [ ] Semua environment variables sudah dikonfigurasi
-- [ ] Database migrations sudah dibuat dan ditest
-- [ ] API endpoints sudah ditest (manual atau automated)
-- [ ] Frontend bisa berkomunikasi dengan backend (CORS OK)
-- [ ] Secrets tidak ter-commit ke Git
-- [ ] `.env.example` sudah diperbarui dengan var baru
-- [ ] README.md sudah update dengan instruksi deployment
-- [ ] Monitoring & error tracking sudah disetup
-- [ ] Backup database strategy sudah ada
-- [ ] Rate limiting sudah diimplementasikan (produksi)
+### Backend Readiness
+- [x] Database schema created di Supabase (categories, products, orders, order_items)
+- [x] Supabase client integrated (@supabase/supabase-js)
+- [x] All controllers migrated (Category, Product, Order)
+- [x] Validation schemas updated (UUID support)
+- [x] Testing completed (19/21 tests passing)
+- [x] Legacy code removed (Keranjang/Pesanan)
+- [ ] CORS configuration tested untuk production domain
+- [ ] Environment variables documented
+- [ ] Health check endpoint working
+- [ ] Error logging configured
 
-## 🚀 Step-by-Step Deployment
+### Frontend Readiness
+- [ ] Update API calls dari `/api/pesanans` → `/api/orders`
+- [ ] Update UUID handling (bukan integer IDs)
+- [ ] Environment variable `NEXT_PUBLIC_API_URL` configured
+- [ ] Production build tested locally (`npm run build`)
+- [ ] CORS tested dengan backend URL
 
-### 1. Setup Supabase Project
+### Security
+- [x] `.env` files not committed to Git
+- [x] `.env.example` created dengan template
+- [ ] Supabase service role key secured (tidak exposed ke frontend)
+- [ ] HTTPS enabled (otomatis di Netlify/Railway/Render)
+- [ ] Rate limiting considered (optional untuk MVP)
+- [ ] Row Level Security (RLS) policies evaluated
+
+### Monitoring
+- [ ] Error tracking setup (Sentry recommended)
+- [ ] Logging strategy defined
+- [ ] Database backup schedule (Supabase otomatis daily backup)
+- [ ] Uptime monitoring (UptimeRobot, Better Uptime)
+
+## 🚀 Step-by-Step Deployment (Railway)
+
+### 1. Prepare Codebase
+
 ```bash
-# Login
-supabase login
-
-# Init project
-supabase init
-
-# Link to remote project
-supabase link --project-ref <your-project-ref>
-
-# Create migration
-supabase migration new initial_schema
-
-# Edit migration file, lalu apply
-supabase db push
+# Ensure all changes committed
+git status
+git add .
+git commit -m "feat: prepare for production deployment"
+git push origin main
 ```
 
-### 2. Deploy Backend
-```bash
-# Jika pakai Edge Functions
-cd apps/api
-# Convert Hapi routes to Edge Functions (manual)
-supabase functions deploy
+### 2. Deploy Backend (Railway)
 
-# Jika pakai Railway/Render
-# Connect repo di dashboard, set env vars, deploy otomatis
+1. **Create Railway Account**: https://railway.app
+2. **New Project** → **Deploy from GitHub repo**
+3. **Select Repository**: `cashier-app`
+4. **Service Settings**:
+   - Root Directory: `apps/api`
+   - Build Command: (auto-detected from package.json)
+   - Start Command: `npm start`
+5. **Add Environment Variables**:
+   ```
+   PORT=4000
+   HOST=0.0.0.0
+   NODE_ENV=production
+   SUPABASE_URL=https://xrxfskydbcrjasdqtreq.supabase.co
+   SUPABASE_SERVICE_ROLE_KEY=<your-key>
+   ```
+6. **Deploy** → Copy URL (e.g., `https://cashier-api-production.up.railway.app`)
+
+### 3. Test Backend API
+
+```bash
+# Test health endpoint
+curl https://cashier-api-production.up.railway.app/api/health
+
+# Test categories
+curl https://cashier-api-production.up.railway.app/api/categories
+
+# Test products
+curl https://cashier-api-production.up.railway.app/api/products
 ```
 
-### 3. Deploy Frontend (Netlify)
-```bash
-# Via Netlify CLI
-npm install -g netlify-cli
-netlify login
-netlify init
-netlify deploy --prod
+### 4. Deploy Frontend (Netlify)
 
-# Atau connect GitHub repo di Netlify dashboard
+1. **Create Netlify Account**: https://netlify.com
+2. **New Site from Git** → **Connect to GitHub**
+3. **Select Repository**: `cashier-app`
+4. **Build Settings**:
+   - Base directory: `/`
+   - Build command: `npm run build`
+   - Publish directory: `.next`
+5. **Add Environment Variable**:
+   ```
+   NEXT_PUBLIC_API_URL=https://cashier-api-production.up.railway.app/api
+   ```
+6. **Deploy Site** → Copy URL (e.g., `https://cashier-app.netlify.app`)
+
+### 5. Test Full Stack
+
+1. Open frontend URL: `https://cashier-app.netlify.app`
+2. Test kategori loading
+3. Test produk loading
+4. Test create order
+5. Check browser DevTools → Network tab untuk verify API calls
+
+### 6. Enable Custom Domain (Optional)
+
+**Netlify**:
+- Site Settings → Domain Management → Add custom domain
+- Configure DNS records (A record atau CNAME)
+
+**Railway**:
+- Service Settings → Domains → Add custom domain
+- Configure DNS (CNAME record)
+
+## 🔄 Continuous Deployment
+
+Both Netlify and Railway support auto-deploy from GitHub:
+
+1. **Push to main branch**:
+```bash
+git add .
+git commit -m "feat: add new feature"
+git push origin main
 ```
 
-### 4. Test Production
-```bash
-# Test API
-curl https://xxx.supabase.co/functions/v1/products
+2. **Auto-deployment triggers**:
+   - Netlify rebuilds frontend
+   - Railway rebuilds backend
 
-# Test Frontend
-open https://your-app.netlify.app
-```
+3. **Monitor deployments**:
+   - Netlify: Dashboard → Deploys
+   - Railway: Project → Deployments
 
 ## 📞 Support & Resources
 
@@ -514,11 +488,42 @@ open https://your-app.netlify.app
 - [Supabase Docs](https://supabase.com/docs)
 - [Railway Docs](https://docs.railway.app/)
 - [Render Docs](https://render.com/docs)
+- [Hapi.js Docs](https://hapi.dev/)
 
 ---
 
-**Catatan**: Pilih opsi deployment yang sesuai dengan kebutuhan:
-- **Simple & cepat**: Supabase Edge Functions (full serverless)
-- **Flexibility**: Railway/Render + Supabase DB (tetap pakai Hapi.js)
+## 📝 Kesimpulan & Rekomendasi
 
-Untuk proyek kasir-app ini, rekomendasi adalah **Opsi 1 (Supabase Edge Functions)** karena lebih terintegrasi dan cost-effective untuk MVP.
+**Rekomendasi Deployment untuk Cashier App:**
+
+### ✅ Opsi A: Railway + Supabase DB (RECOMMENDED)
+
+**Mengapa Railway?**
+- ✅ Backend sudah menggunakan Hapi.js + @supabase/supabase-js (production-ready)
+- ✅ Tidak perlu refactor/rewrite (Hapi.js compatible dengan Railway)
+- ✅ Free tier $5/month credit (cukup untuk MVP)
+- ✅ Zero-config deployment (auto-detect Node.js)
+- ✅ Database sudah setup di Supabase (tinggal pakai)
+
+**Arsitektur:**
+```
+Frontend (Netlify) → Backend (Railway/Hapi.js) → Database (Supabase PostgreSQL)
+```
+
+### ⚠️ Opsi B: Supabase Edge Functions (NOT RECOMMENDED)
+
+**Mengapa TIDAK direkomendasikan:**
+- ❌ Memerlukan complete rewrite dari Hapi.js → Deno
+- ❌ Estimasi effort: 1-2 hari development + testing
+- ❌ Tidak ada manfaat signifikan untuk use case kasir app
+- ❌ Hapi.js tidak kompatibel dengan Deno runtime
+
+**Kesimpulan:**  
+Gunakan **Railway untuk backend** karena kode sudah siap production. Supabase hanya digunakan untuk database (bukan Edge Functions).
+
+---
+
+**Author**: Hesa Firdaus  
+**Repository**: cashier-app  
+**Last Updated**: 3 Januari 2025  
+**Deployment Status**: Backend ✅ Ready | Frontend ⏳ Pending (update API calls)

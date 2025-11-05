@@ -6,7 +6,7 @@ Aplikasi kasir (POS) full-stack dengan Next.js (Frontend) dan Hapi.js (Backend R
 
 ## 📋 Deskripsi
 
-Aplikasi kasir modern dengan arsitektur terpisah antara frontend dan backend, siap untuk integrasi database PostgreSQL/Supabase.
+Aplikasi kasir modern dengan arsitektur terpisah antara frontend dan backend, **terintegrasi dengan Supabase** (PostgreSQL database + REST API).
 
 ## 🏗️ Arsitektur
 
@@ -53,9 +53,9 @@ cashier-app/
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js (v16 atau lebih tinggi)
+- Node.js (v18 atau lebih tinggi)
 - npm atau yarn
-- PostgreSQL atau Supabase (opsional, untuk database)
+- Supabase account (untuk database & backend API)
 
 ### Installation
 
@@ -136,55 +136,49 @@ DELETE /api/categories/:id        # Delete
 
 ### Cart (Keranjangs)
 ```
-GET    /api/keranjangs            # Get all cart items
-GET    /api/keranjangs/:id        # Get by ID
-POST   /api/keranjangs            # Add to cart
-PUT    /api/keranjangs/:id        # Update quantity
-DELETE /api/keranjangs/:id        # Remove from cart
-DELETE /api/keranjangs             # Clear all cart
+❌ DEPRECATED - Endpoint ini sudah dihapus
+Gunakan order flow langsung: Products → Create Order
 ```
 
-### Orders (Pesanans)
+### Orders
 ```
-GET    /api/pesanans              # Get all orders
-GET    /api/pesanans/:id          # Get by ID
-POST   /api/pesanans              # Create order
-PATCH  /api/pesanans/:id/status   # Update status
-DELETE /api/pesanans/:id          # Delete order
+GET    /api/orders                # Get all orders
+GET    /api/orders/:id            # Get by ID with items
+POST   /api/orders                # Create order (auto stock update)
+PATCH  /api/orders/:id/status     # Update status
+DELETE /api/orders/:id            # Delete order
 ```
 
 📖 **Full API Documentation**: See [apps/api/API_DOCUMENTATION.md](./apps/api/API_DOCUMENTATION.md)
 
 ## 🗄️ Database Integration
 
-### Setup Database (PostgreSQL)
+### ✅ Database Sudah Terintegrasi (Supabase)
 
-1. Create database:
-```sql
-CREATE DATABASE cashier_db;
-```
+Backend sudah **fully integrated** dengan Supabase PostgreSQL menggunakan `@supabase/supabase-js` client.
 
-2. Configure `apps/api/.env`:
-```env
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=cashier_db
-DB_USER=postgres
-DB_PASSWORD=your_password
-```
+**Current Setup:**
+- Database: Supabase PostgreSQL
+- Client: `@supabase/supabase-js` v2.79.0
+- Schema: Categories, Products, Orders, Order Items (UUID primary keys)
+- Connection: REST API over HTTPS (bypass IPv6 issues)
 
-3. Update `apps/api/src/config/database.js` (create if not exists)
-4. Implement queries di `apps/api/src/models/*.js`
-
-### Setup Database (Supabase)
-
-1. Buat project di [Supabase](https://supabase.com)
-2. Copy URL dan API keys
-3. Configure `apps/api/.env`:
+**Environment Variables** (`apps/api/.env`):
 ```env
 SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_KEY=your-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+SUPABASE_ANON_KEY=your-anon-key
 ```
+
+**Database Schema:**
+```sql
+-- Categories: UUID, name, description
+-- Products: UUID, name, description, price, stock, image_url, category_id, is_active
+-- Orders: UUID, order_number, total_amount, status, payment_method, paid_amount, change_amount
+-- Order Items: UUID, order_id, product_id, product_name, quantity, price, subtotal
+```
+
+📖 **Migration dari in-memory**: Semua controllers sudah menggunakan Supabase client. In-memory models dihapus.
 
 ## 📁 Struktur Backend
 
@@ -199,25 +193,23 @@ Mendefinisikan endpoint dan mapping ke controller
 - `healthRoutes.js` - Health check endpoint
 
 ### Controllers (`apps/api/src/controllers/`)
-Business logic dan request handling
-- `CategoryController.js`
-- `ProductController.js`
-- `KeranjangController.js`
-- `PesananController.js`
+Business logic dan request handling (menggunakan Supabase client)
+- `CategoryController.js` - ✅ Supabase integrated
+- `ProductController.js` - ✅ Supabase integrated
+- `OrderController.js` - ✅ Supabase integrated (menggantikan Pesanan & Keranjang)
 
 ### Models (`apps/api/src/models/`)
-In-memory data storage (ready for database integration)
-- `Category.js`
-- `Product.js`
-- `Keranjang.js`
-- `Pesanan.js`
+Legacy in-memory models (hanya digunakan sebagai fallback)
+- `Category.js` - Fallback jika Supabase unavailable
+- `Product.js` - Fallback jika Supabase unavailable
 
 ### Config (`apps/api/src/config/`)
 Server configuration dan utilities
-- `env.js` - Environment variables
+- `env.js` - Environment variables validation
 - `cors.js` - CORS configuration
 - `logger.js` - Logging setup
-- `validation.js` - Input validation rules
+- `validation.js` - Input validation rules (Joi schemas)
+- `supabase.js` - ✅ Supabase client initialization
 
 ## 🛠️ Development Guide
 
@@ -247,29 +239,36 @@ Server configuration dan utilities
 
 ### Backend
 - Hapi.js 21
-- Node.js
+- Node.js 18+
 - @hapi/joi (validation)
+- @supabase/supabase-js (database client)
 - dotenv (environment variables)
-- In-memory storage (ready for PostgreSQL/Supabase)
+- ✅ **Supabase PostgreSQL** (production database)
 
 ## 📝 TODO
 
 Backend:
-- [ ] Implement database connection (PostgreSQL/Supabase)
-- [ ] Add authentication & authorization (JWT)
+- [x] Implement database connection (Supabase PostgreSQL)
+- [x] Migrate controllers to use Supabase client
+- [x] Update validation schemas for UUID primary keys
+- [ ] Add authentication & authorization (Supabase Auth + RLS)
 - [ ] Add request logging (winston/pino)
 - [ ] Add API documentation (Swagger/OpenAPI)
 - [ ] Add unit tests (Jest)
 - [ ] Add rate limiting
 - [ ] Add security headers
+- [ ] Implement order number generation logic
+- [ ] Add receipt generation (PDF/print)
 
 Frontend:
+- [ ] Update API calls untuk endpoint /orders (ganti dari /pesanans)
 - [ ] Add loading states
 - [ ] Add error boundaries
 - [ ] Add form validation
 - [ ] Improve responsive design
 - [ ] Add dark mode
 - [ ] Add print receipt feature
+- [ ] Integrate with Supabase Auth
 
 ## 📄 License
 
