@@ -2,8 +2,6 @@
 
 Aplikasi kasir (POS) full-stack dengan Next.js (Frontend) dan Hapi.js (Backend REST API).
 
-> **🎉 Mono-Repo Structure**: Proyek ini sekarang menggunakan npm workspaces untuk mengelola multiple packages. Lihat [MONOREPO_STRUCTURE.md](./MONOREPO_STRUCTURE.md) untuk detail lengkap.
-
 ## 📋 Deskripsi
 
 Aplikasi kasir modern dengan arsitektur terpisah antara frontend dan backend, **terintegrasi dengan Supabase** (PostgreSQL database + REST API).
