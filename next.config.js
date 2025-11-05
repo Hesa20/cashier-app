@@ -1,21 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  output: 'export', // ⭐ PENTING: Export sebagai static site
+  output: 'export',
   images: {
-    unoptimized: true, // ⭐ PENTING: Required untuk static export
+    unoptimized: true,
   },
-  // Proxy `/api/*` to the Hapi backend server during development
-  async rewrites() {
-    return process.env.NODE_ENV === 'development'
-      ? [
-          {
-            source: '/api/:path*',
-            destination: 'http://localhost:4000/api/:path*',
-          },
-        ]
-      : [];
-  },
+  // Note: rewrites() is not compatible with static export
+  // API calls should use absolute URLs from environment variables
 };
 
 module.exports = nextConfig;
