@@ -1,9 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  output: 'export',
+  output: 'export', // ⭐ PENTING: Export sebagai static site
   images: {
-    unoptimized: true,
+    unoptimized: true, // ⭐ PENTING: Required untuk static export
   },
   // Proxy `/api/*` to the Hapi backend server during development
   async rewrites() {
