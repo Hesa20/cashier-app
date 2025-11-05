@@ -8,6 +8,8 @@ const corsConfig = {
   production: {
     origin: [
       process.env.FRONTEND_URL || 'http://localhost:3000',
+      'https://hesa-cashier-app.netlify.app', // Netlify production URL
+      'https://*.netlify.app', // Allow all Netlify preview deploys
       // Add more allowed origins as needed
     ],
     credentials: true,
