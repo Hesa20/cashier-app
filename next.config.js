@@ -1,9 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  output: 'export', // Tambahkan ini untuk static export
+  output: 'export',
   images: {
-    unoptimized: true, // Required untuk static export
+    unoptimized: true,
   },
   // Proxy `/api/*` to the Hapi backend server during development
   async rewrites() {
