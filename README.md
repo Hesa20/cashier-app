@@ -272,7 +272,7 @@ Frontend:
 
 ## 📄 License
 
-ISC
+MIT
 
 ## 👤 Author
 

@@ -36,11 +36,8 @@ dist/
 .cache-loader/
 
 # environment variables
-.env
 .env.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env.production
 
 # Workspace env files
 apps/*/.env
