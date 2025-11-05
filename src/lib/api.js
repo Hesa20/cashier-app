@@ -1,9 +1,14 @@
 import axios from 'axios';
 
 // API configuration
-// In development: use Next.js API proxy (/api -> http://localhost:4000/api)
-// In production: use NEXT_PUBLIC_API_URL environment variable
-const baseURL = process.env.NEXT_PUBLIC_API_URL || '/api';
+// Priority:
+// 1) NEXT_PUBLIC_API_BASE_URL (explicit full API base, e.g. https://.../api)
+// 2) NEXT_PUBLIC_API_URL (root URL, e.g. https://...)
+// 3) fallback to Next.js proxy `/api` for local development
+const baseURL =
+  process.env.NEXT_PUBLIC_API_BASE_URL ||
+  process.env.NEXT_PUBLIC_API_URL ||
+  '/api';
 
 const api = axios.create({
   baseURL,
