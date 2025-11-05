@@ -31,25 +31,18 @@ const productSchemas = {
         'string.max': 'Nama produk maksimal 100 karakter',
         'any.required': 'Nama produk wajib diisi'
       }),
-    harga: Joi.number().integer().min(0).required()
+    deskripsi: Joi.string().max(500).allow('').optional(),
+    harga: Joi.number().min(0).required()
       .messages({
         'number.base': 'Harga harus berupa angka',
         'number.min': 'Harga tidak boleh negatif',
         'any.required': 'Harga wajib diisi'
       }),
-    categoryId: Joi.number().integer().required()
+    categoryId: Joi.string().uuid().optional().allow(null)
       .messages({
-        'number.base': 'Category ID harus berupa angka',
-        'any.required': 'Category ID wajib diisi'
+        'string.guid': 'Category ID harus berupa UUID yang valid'
       }),
-    kode: Joi.string().min(2).max(20).required()
-      .messages({
-        'string.empty': 'Kode produk tidak boleh kosong',
-        'string.min': 'Kode produk minimal 2 karakter',
-        'string.max': 'Kode produk maksimal 20 karakter',
-        'any.required': 'Kode produk wajib diisi'
-      }),
-    gambar: Joi.string().max(255).default('default.png')
+    gambar: Joi.string().max(255).optional().allow(null, '')
       .messages({
         'string.max': 'Nama file gambar terlalu panjang'
       }),
@@ -62,10 +55,10 @@ const productSchemas = {
   
   update: Joi.object({
     nama: Joi.string().min(3).max(100),
-    harga: Joi.number().integer().min(0),
-    categoryId: Joi.number().integer(),
-    kode: Joi.string().min(2).max(20),
-    gambar: Joi.string().max(255),
+    deskripsi: Joi.string().max(500).allow(''),
+    harga: Joi.number().min(0),
+    categoryId: Joi.string().uuid().allow(null),
+    gambar: Joi.string().max(255).allow(null, ''),
     stok: Joi.number().integer().min(0)
   }).min(1).messages({
     'object.min': 'Minimal satu field harus diisi untuk update'
@@ -123,27 +116,27 @@ const pesananSchemas = {
   create: Joi.object({
     items: Joi.array().min(1).items(
       Joi.object({
-        productId: Joi.number().integer().required(),
-        jumlah: Joi.number().integer().min(1).required(),
-        harga: Joi.number().integer().min(0).required(),
-        totalHarga: Joi.number().integer().min(0).required()
+        productId: Joi.string().uuid().required(),
+        jumlah: Joi.number().integer().min(1).required()
       })
     ).required()
       .messages({
         'array.min': 'Minimal harus ada 1 item',
         'any.required': 'Items wajib diisi'
       }),
-    totalHarga: Joi.number().integer().min(0).required()
+    totalAmount: Joi.number().min(0).required()
       .messages({
         'number.base': 'Total harga harus berupa angka',
         'number.min': 'Total harga tidak boleh negatif',
         'any.required': 'Total harga wajib diisi'
       }),
-    metodePembayaran: Joi.string().valid('cash', 'debit', 'credit', 'ewallet').required()
+    paymentMethod: Joi.string().valid('cash', 'debit', 'credit', 'ewallet').required()
       .messages({
         'any.only': 'Metode pembayaran harus salah satu dari: cash, debit, credit, ewallet',
         'any.required': 'Metode pembayaran wajib diisi'
-      })
+      }),
+    paidAmount: Joi.number().min(0).optional(),
+    notes: Joi.string().max(255).allow('').optional()
   }),
   
   updateStatus: Joi.object({
@@ -154,6 +147,9 @@ const pesananSchemas = {
       })
   })
 };
+
+// Order validation (alias untuk pesanan, mengikuti schema Supabase)
+const orderSchemas = pesananSchemas;
 
 // Validation middleware
 const validate = (schema) => {
@@ -187,5 +183,14 @@ module.exports = {
   productSchemas,
   keranjangSchemas,
   pesananSchemas,
-  validate
+  orderSchemas,
+  validate,
+  // Export validations yang siap pakai
+  validateCategory: { payload: categorySchemas.create },
+  validateCategoryUpdate: { payload: categorySchemas.update },
+  validateProduct: { payload: productSchemas.create },
+  validateProductUpdate: { payload: productSchemas.update },
+  validateProductStok: { payload: productSchemas.updateStok },
+  validateOrder: { payload: orderSchemas.create },
+  validateOrderStatus: { payload: orderSchemas.updateStatus }
 };

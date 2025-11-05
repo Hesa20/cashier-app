@@ -1,7 +1,6 @@
 const categoryRoutes = require('./categoryRoutes');
 const productRoutes = require('./productRoutes');
-const keranjangRoutes = require('./keranjangRoutes');
-const pesananRoutes = require('./pesananRoutes');
+const orderRoutes = require('./orderRoutes');
 const healthRoutes = require('./healthRoutes');
 
 const routes = [
@@ -11,8 +10,7 @@ const routes = [
   // API routes
   ...categoryRoutes,
   ...productRoutes,
-  ...keranjangRoutes,
-  ...pesananRoutes
+  ...orderRoutes
 ];
 
 module.exports = routes;
