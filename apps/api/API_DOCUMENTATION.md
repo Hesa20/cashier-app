@@ -4,15 +4,16 @@
 **Version:** 2.0.0  
 **Base URL:** `http://localhost:4000/api`  
 **Database:** Supabase PostgreSQL  
-**Last Updated:** 3 Januari 2025
+**Last Updated:** 6 November 2025
 
 ## ⚠️ Breaking Changes (v2.0.0)
 
 - **Orders endpoint** changed from `/api/pesanans` → `/api/orders` ✨
-- **Cart endpoint** `/api/keranjangs` deprecated (use frontend state management)
+- **Cart endpoint** `/api/keranjangs` **dihapus** (use frontend state management)
 - **ID format** changed from integer to UUID
 - **Database** migrated from in-memory to Supabase PostgreSQL
 - **New fields** added: `order_number`, `paid_amount`, `change_amount` for orders
+- **Legacy controllers removed**: KeranjangController, PesananController (diganti OrderController)
 
 ## Response Format
 
@@ -361,20 +362,21 @@ Note: Use negative number to decrease stock, positive to increase.
 
 ---
 
-## 4. Cart (Keranjang) - ⚠️ DEPRECATED
+## 4. Cart (Keranjang) - ❌ DIHAPUS
 
-> **⚠️ DEPRECATED**: Cart endpoints have been deprecated in v2.0.0. Use frontend state management (React state, Redux, Zustand) for cart functionality instead.
+> **❌ DIHAPUS**: Cart endpoints telah dihapus di v2.0.0. Gunakan state management di frontend (React state, Redux, Zustand) untuk keranjang belanja.
 
-The following endpoints are no longer available:
-- ~~`GET /api/keranjangs`~~ - Use frontend state
-- ~~`POST /api/keranjangs`~~ - Use frontend state
-- ~~`PUT /api/keranjangs/:id`~~ - Use frontend state
-- ~~`DELETE /api/keranjangs/:id`~~ - Use frontend state
-- ~~`DELETE /api/keranjangs`~~ - Use frontend state
+Endpoint berikut **tidak lagi tersedia**:
+- ~~`GET /api/keranjangs`~~ - Gunakan frontend state
+- ~~`POST /api/keranjangs`~~ - Gunakan frontend state
+- ~~`PUT /api/keranjangs/:id`~~ - Gunakan frontend state
+- ~~`DELETE /api/keranjangs/:id`~~ - Gunakan frontend state
+- ~~`DELETE /api/keranjangs`~~ - Gunakan frontend state
 
 **Migration Guide:**
-- Store cart items in React state or global state management
-- Only send cart data to backend when creating an order via `POST /api/orders`
+- Simpan cart items di React state atau global state management
+- Kirim data keranjang ke backend hanya saat membuat order via `POST /api/orders`
+- Field `keranjangs` di request body order berisi array product_id dan jumlah
 
 ---
 
@@ -527,152 +529,9 @@ Get order by ID (future implementation - not yet implemented).
 
 **Note:** This endpoint is planned but not yet implemented.
 
-### GET /api/keranjangs
+**Note:** This endpoint is planned but not yet implemented.
 
-Get all cart items.
-
-**Query Parameters:**
-- `productId` (optional) - Filter by product ID
-
-**Response:**
-```json
-{
-  "status": "success",
-  "data": [
-    {
-      "id": 1,
-      "productId": 1,
-      "jumlah": 2,
-      "totalHarga": 30000,
-      "product": {
-        "id": 1,
-        "nama": "Nasi Goreng",
-        "harga": 15000,
-        "gambar": "default.png"
-      },
-      "createdAt": "2025-10-29T12:00:00.000Z"
-    }
-  ]
-}
-```
-
-### GET /api/keranjangs/:id
-
-Get cart item by ID.
-
-**Parameters:**
-- `id` (path) - Cart item ID
-
-**Response:**
-```json
-{
-  "status": "success",
-  "data": {
-    "id": 1,
-    "productId": 1,
-    "jumlah": 2,
-    "totalHarga": 30000,
-    "product": { ... }
-  }
-}
-```
-
-### POST /api/keranjangs
-
-Add item to cart.
-
-**Request Body:**
-```json
-{
-  "productId": 1,
-  "jumlah": 2,
-  "totalHarga": 30000,
-  "keterangan": "Pedes, Nasi Setengah (optional)"
-}
-```
-
-**Note:** 
-- `keterangan` is optional and can be an empty string or omitted entirely
-- All other fields are required
-
-**Response:**
-```json
-{
-  "status": "success",
-  "message": "Item berhasil ditambahkan ke keranjang",
-  "data": {
-    "id": 1,
-    "productId": 1,
-    "jumlah": 2,
-    "totalHarga": 30000,
-    "keterangan": "",
-    "createdAt": "2025-10-29T12:00:00.000Z"
-  }
-}
-```
-
-### PUT /api/keranjangs/:id
-
-Update cart item.
-
-**Parameters:**
-- `id` (path) - Cart item ID
-
-**Request Body:**
-```json
-{
-  "jumlah": 3,
-  "totalHarga": 45000,
-  "keterangan": "Pedes (optional)"
-}
-```
-
-**Note:**
-- All fields are optional - you can update any combination of fields
-- `keterangan` can be an empty string to clear the note
-- At least one field must be provided
-
-**Response:**
-```json
-{
-  "status": "success",
-  "message": "Item berhasil diupdate",
-  "data": {
-    "id": 1,
-    "jumlah": 3,
-    "totalHarga": 45000,
-    "keterangan": "Pedes",
-    "updatedAt": "2025-10-29T12:00:00.000Z"
-  }
-}
-```
-
-### DELETE /api/keranjangs/:id
-
-Remove item from cart.
-
-**Parameters:**
-- `id` (path) - Cart item ID
-
-**Response:**
-```json
-{
-  "status": "success",
-  "message": "Item berhasil dihapus"
-}
-```
-
-### DELETE /api/keranjangs
-
-Clear all cart items.
-
-**Response:**
-```json
-{
-  "status": "success",
-  "message": "Keranjang berhasil dikosongkan"
-}
-```
+---
 
 ---
 
@@ -836,10 +695,12 @@ CREATE TABLE order_items (
    + POST /api/orders
    ```
 
-3. **Cart Deprecated**: `/api/keranjangs` removed
+3. **Cart Deprecated**: `/api/keranjangs` dihapus
    ```diff
    - POST /api/keranjangs
+   - GET /api/keranjangs
    + Use frontend state management
+   + Send cart data only when creating order
    ```
 
 4. **Product Query Params**: Changed parameter names
@@ -861,9 +722,9 @@ CREATE TABLE order_items (
 
 ---
 
-## Contact
+**Contact**
 
 **Author**: Hesa Firdaus  
 **Repository**: cashier-app  
 **Documentation Version**: 2.0.0  
-**Last Updated**: 3 Januari 2025
+**Last Updated**: 6 November 2025

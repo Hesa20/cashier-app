@@ -1,7 +1,7 @@
 # Deployment Guide - Cashier App
 
 **Status**: Backend sudah terintegrasi dengan Supabase PostgreSQL ✅  
-**Last Updated**: 3 Januari 2025
+**Last Updated**: 6 November 2025
 
 Panduan deployment untuk Netlify (Frontend) dan Railway/Render (Backend API).
 
@@ -37,8 +37,8 @@ Panduan deployment untuk Netlify (Frontend) dan Railway/Render (Backend API).
 - ✅ **Database**: Supabase PostgreSQL dengan schema UUID-based
 - ✅ **Controllers**: Category, Product, Order (semua sudah migrasi ke Supabase client)
 - ✅ **Validation**: @hapi/joi dengan UUID validation
-- ✅ **Testing**: 21 comprehensive tests created (19/21 passing)
-- ✅ **Cleanup**: Legacy code removed (Keranjang/Pesanan controllers/models)
+- ✅ **Cleanup**: Legacy Keranjang/Pesanan controllers/models dihapus
+- ✅ **Mono-repo**: npm workspaces (apps/api + packages/common)
 
 ## 📦 Deployment Strategy
 
@@ -358,16 +358,17 @@ supabase db reset
 - [x] Supabase client integrated (@supabase/supabase-js)
 - [x] All controllers migrated (Category, Product, Order)
 - [x] Validation schemas updated (UUID support)
-- [x] Testing completed (19/21 tests passing)
 - [x] Legacy code removed (Keranjang/Pesanan)
+- [x] Mono-repo structure (npm workspaces)
 - [ ] CORS configuration tested untuk production domain
 - [ ] Environment variables documented
-- [ ] Health check endpoint working
+- [x] Health check endpoint working
 - [ ] Error logging configured
 
 ### Frontend Readiness
 - [ ] Update API calls dari `/api/pesanans` → `/api/orders`
 - [ ] Update UUID handling (bukan integer IDs)
+- [ ] Remove keranjang API calls (gunakan local state)
 - [ ] Environment variable `NEXT_PUBLIC_API_URL` configured
 - [ ] Production build tested locally (`npm run build`)
 - [ ] CORS tested dengan backend URL
@@ -525,5 +526,5 @@ Gunakan **Railway untuk backend** karena kode sudah siap production. Supabase ha
 
 **Author**: Hesa Firdaus  
 **Repository**: cashier-app  
-**Last Updated**: 3 Januari 2025  
+**Last Updated**: 6 November 2025  
 **Deployment Status**: Backend ✅ Ready | Frontend ⏳ Pending (update API calls)

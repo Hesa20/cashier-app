@@ -132,12 +132,6 @@ PUT    /api/categories/:id        # Update
 DELETE /api/categories/:id        # Delete
 ```
 
-### Cart (Keranjangs)
-```
-❌ DEPRECATED - Endpoint ini sudah dihapus
-Gunakan order flow langsung: Products → Create Order
-```
-
 ### Orders
 ```
 GET    /api/orders                # Get all orders
@@ -146,6 +140,8 @@ POST   /api/orders                # Create order (auto stock update)
 PATCH  /api/orders/:id/status     # Update status
 DELETE /api/orders/:id            # Delete order
 ```
+
+**Note**: Cart (Keranjang) endpoints sudah dihapus. Gunakan state management di frontend untuk keranjang belanja.
 
 📖 **Full API Documentation**: See [apps/api/API_DOCUMENTATION.md](./apps/api/API_DOCUMENTATION.md)
 
@@ -186,8 +182,7 @@ SUPABASE_ANON_KEY=your-anon-key
 Mendefinisikan endpoint dan mapping ke controller
 - `categoryRoutes.js` - Category endpoints
 - `productRoutes.js` - Product endpoints
-- `keranjangRoutes.js` - Cart endpoints
-- `pesananRoutes.js` - Order endpoints
+- `orderRoutes.js` - Order endpoints (menggantikan keranjangRoutes & pesananRoutes)
 - `healthRoutes.js` - Health check endpoint
 
 ### Controllers (`apps/api/src/controllers/`)
@@ -197,9 +192,9 @@ Business logic dan request handling (menggunakan Supabase client)
 - `OrderController.js` - ✅ Supabase integrated (menggantikan Pesanan & Keranjang)
 
 ### Models (`apps/api/src/models/`)
-Legacy in-memory models (hanya digunakan sebagai fallback)
-- `Category.js` - Fallback jika Supabase unavailable
-- `Product.js` - Fallback jika Supabase unavailable
+Legacy in-memory models (sudah tidak digunakan - semua menggunakan Supabase)
+- `Category.js` - Deprecated (gunakan Supabase)
+- `Product.js` - Deprecated (gunakan Supabase)
 
 ### Config (`apps/api/src/config/`)
 Server configuration dan utilities
@@ -236,11 +231,12 @@ Server configuration dan utilities
 - FontAwesome
 
 ### Backend
-- Hapi.js 21
+- Hapi.js 21.3.2
 - Node.js 18+
-- @hapi/joi (validation)
-- @supabase/supabase-js (database client)
-- dotenv (environment variables)
+- @hapi/joi 17.1.1 (validation with UUID support)
+- @supabase/supabase-js 2.79.0 (database client)
+- pg 8.11.0 (PostgreSQL driver - optional)
+- dotenv 16.3.1 (environment variables)
 - ✅ **Supabase PostgreSQL** (production database)
 
 ## 📝 TODO
@@ -249,6 +245,7 @@ Backend:
 - [x] Implement database connection (Supabase PostgreSQL)
 - [x] Migrate controllers to use Supabase client
 - [x] Update validation schemas for UUID primary keys
+- [x] Remove legacy Keranjang/Pesanan controllers (gunakan Order)
 - [ ] Add authentication & authorization (Supabase Auth + RLS)
 - [ ] Add request logging (winston/pino)
 - [ ] Add API documentation (Swagger/OpenAPI)
@@ -259,7 +256,9 @@ Backend:
 - [ ] Add receipt generation (PDF/print)
 
 Frontend:
-- [ ] Update API calls untuk endpoint /orders (ganti dari /pesanans)
+- [ ] Update API calls ke endpoint /api/orders (ganti dari /api/pesanans)
+- [ ] Handle UUID format untuk product/category IDs
+- [ ] Remove keranjang API calls (gunakan local state)
 - [ ] Add loading states
 - [ ] Add error boundaries
 - [ ] Add form validation

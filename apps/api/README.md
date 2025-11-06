@@ -66,12 +66,12 @@ apps/api/
 │   │   ├── ProductController.js    # CRUD products (Supabase + JOIN categories)
 │   │   └── OrderController.js      # Create orders + order_items (Supabase transactions)
 │   ├── models/            # Legacy in-memory models (tidak digunakan)
-│   │   ├── Category.js
-│   │   └── Product.js
+│   │   ├── Category.js    # Deprecated - gunakan Supabase
+│   │   └── Product.js     # Deprecated - gunakan Supabase
 │   ├── routes/            # API routes definition
 │   │   ├── categoryRoutes.js
 │   │   ├── productRoutes.js
-│   │   ├── orderRoutes.js
+│   │   ├── orderRoutes.js     # Orders (menggantikan pesananRoutes & keranjangRoutes)
 │   │   ├── healthRoutes.js
 │   │   └── index.js
 │   ├── config/            # Configuration files
@@ -120,9 +120,10 @@ Base URL: `http://localhost:4000/api`
 - `GET /api/orders/:id` - Get order by ID
 
 ### ~~Cart (Keranjang)~~ - DEPRECATED
-- ~~`GET /api/keranjangs`~~ - Deprecated, gunakan state management di frontend
-- ~~`POST /api/keranjangs`~~ - Deprecated
-- ~~`DELETE /api/keranjangs`~~ - Deprecated
+
+**Status**: ❌ Dihapus di v2.0.0
+
+Endpoint `/api/keranjangs` sudah dihapus. Gunakan state management di frontend (React state, Redux, Zustand) untuk keranjang belanja. Data keranjang dikirim langsung saat membuat order via `POST /api/orders`.
 
 📖 **Full API Documentation**: See [API_DOCUMENTATION.md](./API_DOCUMENTATION.md)
 
@@ -338,6 +339,7 @@ const routes = [
 - **@hapi/joi** (^17.1.1) - Input validation (with UUID support)
 - **@supabase/supabase-js** (^2.79.0) - Supabase client for database operations
 - **dotenv** (^16.3.1) - Environment variables
+- **pg** (^8.11.0) - PostgreSQL driver (optional, untuk debugging)
 
 ### Development Dependencies
 - **nodemon** (^3.0.1) - Auto-reload during development
@@ -368,6 +370,7 @@ For production:
 - [x] UUID primary keys & validation ✅
 - [x] Order creation with order_items ✅
 - [x] Stock management (auto-decrement) ✅
+- [x] Remove legacy Keranjang/Pesanan controllers ✅
 - [ ] Add authentication (Supabase Auth)
 - [ ] Add Row Level Security (RLS) policies
 - [ ] Add request logging (winston/pino)
@@ -380,6 +383,7 @@ For production:
 - [ ] Add receipt generation (PDF)
 - [ ] Add order status update endpoint
 - [ ] Add order history/reporting endpoints
+- [ ] Add pagination untuk GET endpoints
 
 ## 📄 License
 
