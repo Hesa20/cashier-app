@@ -13,7 +13,7 @@ Aplikasi kasir modern dengan arsitektur terpisah antara frontend dan backend, **
 ```
 cashier-app/
 ├── apps/
-│   └── api/             # Backend API (Hapi.js) - dipindah dari backend/
+│   └── api/             # Backend API (Hapi.js)
 │       ├── src/
 │       │   ├── controllers/
 │       │   ├── models/
@@ -29,19 +29,19 @@ cashier-app/
 │       ├── index.js
 │       └── README.md
 │
-├── app/                 # Next.js App Router (Frontend - masih di root)
+├── app/                # Next.js App Router (di root)
 │   ├── page.js         # Kasir interface
 │   ├── sukses/         # Success page
 │   └── test/           # Test page
 │
-├── src/                 # Frontend source (masih di root)
+├── src/                # Frontend source (di root)
 │   ├── components/     # React components
-│   ├── lib/           # API client (axios)
-│   ├── styles/        # CSS
-│   └── utils/         # Helpers
+│   ├── lib/            # API client (axios)
+│   ├── styles/         # CSS
+│   └── utils/          # Helpers
 │
-├── public/             # Static assets (masih di root)
-│   └── assets/images/ # Product images
+├── public/             # Static assets
+│   └── assets/images/  # Product images
 │
 └── package.json        # Root workspace config
 ```
