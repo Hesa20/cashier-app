@@ -41,7 +41,6 @@ cashier-app/
 │
 ├── public/             # Static assets
 │   └── assets/images/  # Product images
-│   └── (Note: legacy `public/index.html` removed — `public/` only contains static assets for Next.js)
 │
 └── package.json        # Root workspace config
 ```
