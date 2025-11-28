@@ -46,7 +46,6 @@ apps/*/.env.production
 packages/*/.env
 
 # Example envs may be tracked; do not ignore *.example by default
-
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
@@ -56,3 +55,4 @@ pnpm-debug.log*
 
 # ignore seed output
 
+.editorconfig
