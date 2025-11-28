@@ -101,7 +101,7 @@ Ini akan menjalankan:
 | `npm run build` | Build frontend for production |
 | `npm start` | Start production server |
 
-## 📦 Tech Stack
+## Tech Stack
 
 ### Frontend
 - Next.js 13 (App Router)
@@ -118,9 +118,9 @@ Ini akan menjalankan:
 - @supabase/supabase-js 2.79.0 (database client)
 - pg 8.11.0 (PostgreSQL driver - optional)
 - dotenv 16.3.1 (environment variables)
-- ✅ **Supabase PostgreSQL** (production database)
+- Supabase PostgreSQL (production database)
 
-## 📝 TODO
+## TODO
 
 Backend:
 - [x] Implement database connection (Supabase PostgreSQL)
@@ -148,7 +148,7 @@ Frontend:
 - [ ] Add print receipt feature
 - [ ] Integrate with Supabase Auth
 
-## 📄 License
+## License
 
 MIT
 
