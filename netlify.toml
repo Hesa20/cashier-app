@@ -1,11 +1,15 @@
 [build]
   command = "npm run build"
-  publish = "out"
+  # Publish the Next.js build folder (server-side rendering support)
+  publish = ".next"
 
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
+## No SPA redirect configured - Next.js handles routing out-of-the-box.
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
 
 [build.environment]
   NODE_VERSION = "18"
+
+  # Recommend Netlify Next.js plugin for App Router / SSR compatibility
+  # See: https://docs.netlify.com/configure-builds/get-started/#next-js
